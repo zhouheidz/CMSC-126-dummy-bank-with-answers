@@ -1,0 +1,26 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>Profile | Dummy Bank</title>
+        <link rel="stylesheet" href="/static/stylesheets/main.css">
+    </head>
+
+    <body>
+        <h1>{{ user.email }}</h1>
+        <a href="/signout">Sign Out</a>
+
+        <form action="/transfer" method="post">
+			<div>
+				<label for="recipient">Transfer To</label>
+				<input type="text" name="recipient" id="recipient">
+			</div>
+			<div>
+				<label for="amount">Transfer Amount</label>
+				<input type="number" name="amount" id="amount">
+			</div>
+
+            <button>Transfer</button>
+        </form>
+    </body>
+</html>

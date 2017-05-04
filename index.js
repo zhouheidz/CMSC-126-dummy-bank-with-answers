@@ -75,6 +75,15 @@ app.get('/signout', function(req, res) {
 	res.redirect('/');
 });
 
+app.get('/profile', function(req, res) {
+	const email = req.cookies.currentUser;
+	User.findOne({ where: { email: email } }).then(function(user) {
+		res.render('profile.html', {
+			user: user
+		});
+	});
+});
+
 app.listen(3000, function() {
 	console.log('Server is now running at port 3000');
 });
