@@ -14,6 +14,19 @@ app.set('views', './views');
 app.use(bodyparser.urlencoded());
 app.use(cookieparser('secret-cookie'));
 
+// Session-related stuff
+const sessions = {};
+app.use(function(req, res, next) {
+	let sessionid = req.signedCookies.sessionid;
+	if (!sessionid) {
+		sessionid = 'some-random-session-id-' + (new Date()).getTime();
+		sessions[sessionid] = {};
+		res.cookie('sessionid', sessionid, { signed: true });
+	}
+	req.session = sessions[sessionid];
+	next();
+});
+
 app.use('/static', express.static('./static'));
 app.use(require('./auth-routes'));
 
@@ -22,7 +35,7 @@ app.get('/', function(req, res) {
 });
 
 app.get('/profile', requireSignedIn, function(req, res) {
-	const email = req.signedCookies.currentUser;
+	const email = req.session.currentUser;
 	User.findOne({ where: { email: email } }).then(function(user) {
 		res.render('profile.html', {
 			user: user
@@ -34,7 +47,7 @@ app.post('/transfer', requireSignedIn, function(req, res) {
 	const recipient = req.body.recipient;
 	const amount = parseInt(req.body.amount, 10);
 
-	const email = req.signedCookies.currentUser;
+	const email = req.session.currentUser;
 	User.findOne({ where: { email: email } }).then(function(sender) {
 		User.findOne({ where: { email: recipient } }).then(function(receiver) {
 			Account.findOne({ where: { user_id: sender.id } }).then(function(senderAccount) {
@@ -58,7 +71,7 @@ app.post('/transfer', requireSignedIn, function(req, res) {
 });
 
 function requireSignedIn(req, res, next) {
-    if (!req.signedCookies.currentUser) {
+    if (!req.session.currentUser) {
         return res.redirect('/');
     }
     next();

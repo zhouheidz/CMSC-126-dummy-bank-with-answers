@@ -50,7 +50,7 @@ router.post('/signin', function(req, res) {
 		}
 
 		console.log('Signed in successfully!');
-		res.cookie('currentUser', user.email, { signed: true });
+        req.session.currentUser = user.email;
 		res.redirect('/profile');
     });
 });
