@@ -1,6 +1,7 @@
 const express = require('express');
 const bodyparser = require('body-parser');
 const cookieparser = require('cookie-parser');
+const session = require('express-session');
 const consolidate = require('consolidate');
 const database = require('./database');
 const User = require('./models').User;
@@ -13,19 +14,7 @@ app.set('views', './views');
 
 app.use(bodyparser.urlencoded());
 app.use(cookieparser('secret-cookie'));
-
-// Session-related stuff
-const sessions = {};
-app.use(function(req, res, next) {
-	let sessionid = req.signedCookies.sessionid;
-	if (!sessionid) {
-		sessionid = 'some-random-session-id-' + (new Date()).getTime();
-		sessions[sessionid] = {};
-		res.cookie('sessionid', sessionid, { signed: true });
-	}
-	req.session = sessions[sessionid];
-	next();
-});
+app.use(session({ resave: false, saveUninitialized: false, secret: 'secret-cookie' }));
 
 app.use('/static', express.static('./static'));
 app.use(require('./auth-routes'));

@@ -56,7 +56,7 @@ router.post('/signin', function(req, res) {
 });
 
 router.get('/signout', function(req, res) {
-	res.clearCookie('currentUser');
+	req.session.destroy();
 	res.redirect('/');
 });
 
