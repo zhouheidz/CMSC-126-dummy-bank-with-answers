@@ -2,6 +2,7 @@ const express = require('express');
 const bodyparser = require('body-parser');
 const cookieparser = require('cookie-parser');
 const session = require('express-session');
+const flash = require('express-flash');
 const consolidate = require('consolidate');
 const database = require('./database');
 const User = require('./models').User;
@@ -15,14 +16,7 @@ app.set('views', './views');
 app.use(bodyparser.urlencoded());
 app.use(cookieparser('secret-cookie'));
 app.use(session({ resave: false, saveUninitialized: false, secret: 'secret-cookie' }));
-
-app.use(function(req, res, next) {
-	if (req.session.flash) {
-		res.locals.flash = req.session.flash;
-	}
-	req.session.flash = {};
-	next();
-});
+app.use(flash());
 
 app.use('/static', express.static('./static'));
 app.use(require('./auth-routes'));
@@ -58,7 +52,7 @@ app.post('/transfer', requireSignedIn, function(req, res) {
 							}, { transaction: t });
 						});
 					}).then(function() {
-						req.session.flash.statusMessage = 'Transferred ' + amount + ' to ' + recipient;
+						req.flash('statusMessage', 'Transferred ' + amount + ' to ' + recipient);
 						res.redirect('/profile');
 					});
 				});

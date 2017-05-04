@@ -11,11 +11,11 @@ router.post('/signup', function(req, res) {
 
 	User.findOne({ where: { email: email } }).then(function(user) {
         if (user !== null) {
-			req.session.flash.statusMessage = 'Email is already in use.';
+            req.flash('signUpMessage', 'Email is already in use.');
             return res.redirect('/');
         }
 		if (password !== confirmation) {
-			req.session.flash.statusMessage = 'Passwords do not match.';
+            req.flash('signUpMessage', 'Passwords do not match.');
 	        return res.redirect('/');
 	    }
 
@@ -27,7 +27,7 @@ router.post('/signup', function(req, res) {
             password: hashedPassword,
             salt: salt
         }).then(function() {
-			req.session.flash.statusMessage = 'Signed up successfully!';
+            req.flash('signUpMessage', 'Signed up successfully!');
             return res.redirect('/');
         });
     });
@@ -39,17 +39,17 @@ router.post('/signin', function(req, res) {
 
 	User.findOne({ where: { email: email } }).then(function(user) {
         if (user === null) {
-			req.session.flash.statusMessage = 'Incorrect email.';
+            req.flash('signInMessage', 'Incorrect email.');
             return res.redirect('/');
         }
 
 		const match = bcrypt.compareSync(password, user.password);
 		if (!match) {
-			req.session.flash.statusMessage = 'Incorrect password.';
+			req.flash('signInMessage', 'Incorrect password.');
 			return res.redirect('/');
 		}
 
-		req.session.flash.statusMessage = 'Signed in successfully!';
+        req.flash('statusMessage', 'Signed in successfully!');
         req.session.currentUser = user.email;
 		res.redirect('/profile');
     });
