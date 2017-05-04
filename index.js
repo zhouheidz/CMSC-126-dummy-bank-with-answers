@@ -16,6 +16,14 @@ app.use(bodyparser.urlencoded());
 app.use(cookieparser('secret-cookie'));
 app.use(session({ resave: false, saveUninitialized: false, secret: 'secret-cookie' }));
 
+app.use(function(req, res, next) {
+	if (req.session.flash) {
+		res.locals.flash = req.session.flash;
+	}
+	req.session.flash = {};
+	next();
+});
+
 app.use('/static', express.static('./static'));
 app.use(require('./auth-routes'));
 
@@ -50,7 +58,7 @@ app.post('/transfer', requireSignedIn, function(req, res) {
 							}, { transaction: t });
 						});
 					}).then(function() {
-						console.log('Transferred ' + amount + ' to ' + recipient);
+						req.session.flash.statusMessage = 'Transferred ' + amount + ' to ' + recipient;
 						res.redirect('/profile');
 					});
 				});

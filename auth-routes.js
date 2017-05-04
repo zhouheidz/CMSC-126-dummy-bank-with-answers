@@ -11,11 +11,11 @@ router.post('/signup', function(req, res) {
 
 	User.findOne({ where: { email: email } }).then(function(user) {
         if (user !== null) {
-            console.log('Email is already in use.');
+			req.session.flash.statusMessage = 'Email is already in use.';
             return res.redirect('/');
         }
 		if (password !== confirmation) {
-	        console.log('Passwords do not match.');
+			req.session.flash.statusMessage = 'Passwords do not match.';
 	        return res.redirect('/');
 	    }
 
@@ -27,7 +27,7 @@ router.post('/signup', function(req, res) {
             password: hashedPassword,
             salt: salt
         }).then(function() {
-            console.log('Signed up successfully!');
+			req.session.flash.statusMessage = 'Signed up successfully!';
             return res.redirect('/');
         });
     });
@@ -39,17 +39,17 @@ router.post('/signin', function(req, res) {
 
 	User.findOne({ where: { email: email } }).then(function(user) {
         if (user === null) {
-            console.log('Incorrect email.');
+			req.session.flash.statusMessage = 'Incorrect email.';
             return res.redirect('/');
         }
 
 		const match = bcrypt.compareSync(password, user.password);
 		if (!match) {
-			console.log('Incorrect password.');
+			req.session.flash.statusMessage = 'Incorrect password.';
 			return res.redirect('/');
 		}
 
-		console.log('Signed in successfully!');
+		req.session.flash.statusMessage = 'Signed in successfully!';
         req.session.currentUser = user.email;
 		res.redirect('/profile');
     });
