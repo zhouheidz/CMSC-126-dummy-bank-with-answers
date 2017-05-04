@@ -12,7 +12,7 @@ app.engine('html', consolidate.nunjucks);
 app.set('views', './views');
 
 app.use(bodyparser.urlencoded());
-app.use(cookieparser());
+app.use(cookieparser('secret-cookie'));
 
 app.use('/static', express.static('./static'));
 app.use(require('./auth-routes'));
@@ -22,7 +22,7 @@ app.get('/', function(req, res) {
 });
 
 app.get('/profile', requireSignedIn, function(req, res) {
-	const email = req.cookies.currentUser;
+	const email = req.signedCookies.currentUser;
 	User.findOne({ where: { email: email } }).then(function(user) {
 		res.render('profile.html', {
 			user: user
@@ -34,7 +34,7 @@ app.post('/transfer', requireSignedIn, function(req, res) {
 	const recipient = req.body.recipient;
 	const amount = parseInt(req.body.amount, 10);
 
-	const email = req.cookies.currentUser;
+	const email = req.signedCookies.currentUser;
 	User.findOne({ where: { email: email } }).then(function(sender) {
 		User.findOne({ where: { email: recipient } }).then(function(receiver) {
 			Account.findOne({ where: { user_id: sender.id } }).then(function(senderAccount) {
@@ -58,7 +58,7 @@ app.post('/transfer', requireSignedIn, function(req, res) {
 });
 
 function requireSignedIn(req, res, next) {
-    if (!req.cookies.currentUser) {
+    if (!req.signedCookies.currentUser) {
         return res.redirect('/');
     }
     next();
