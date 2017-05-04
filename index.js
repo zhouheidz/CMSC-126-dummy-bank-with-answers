@@ -19,7 +19,6 @@ app.use(cookieparser('secret-cookie'));
 app.use(session({ resave: false, saveUninitialized: false, secret: 'secret-cookie' }));
 app.use(flash());
 app.use(passport.initialize());
-app.use(passport.session());
 
 app.use('/static', express.static('./static'));
 app.use(require('./auth-routes'));
