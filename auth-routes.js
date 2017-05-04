@@ -36,6 +36,7 @@ router.post('/signup', function(req, res) {
 router.post('/signin', function(req, res) {
 	const email = req.body.email;
     const password = req.body.password;
+	const remember = req.body.remember;
 
 	User.findOne({ where: { email: email } }).then(function(user) {
         if (user === null) {
@@ -51,6 +52,9 @@ router.post('/signin', function(req, res) {
 
         req.flash('statusMessage', 'Signed in successfully!');
         req.session.currentUser = user.email;
+		if (remember) {
+			req.session.cookie.maxAge = 1000 * 60 * 60;
+		}
 		res.redirect('/profile');
     });
 });
