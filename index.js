@@ -3,7 +3,9 @@ const bodyparser = require('body-parser');
 const cookieparser = require('cookie-parser');
 const consolidate = require('consolidate');
 const bcrypt = require('bcrypt');
+const database = require('./database');
 const User = require('./models').User;
+const Account = require('./models').Account;
 
 const app = express();
 
@@ -80,6 +82,33 @@ app.get('/profile', function(req, res) {
 	User.findOne({ where: { email: email } }).then(function(user) {
 		res.render('profile.html', {
 			user: user
+		});
+	});
+});
+
+app.post('/transfer', function(req, res) {
+	const recipient = req.body.recipient;
+	const amount = parseInt(req.body.amount, 10);
+
+	const email = req.cookies.currentUser;
+	User.findOne({ where: { email: email } }).then(function(sender) {
+		User.findOne({ where: { email: recipient } }).then(function(receiver) {
+			Account.findOne({ where: { user_id: sender.id } }).then(function(senderAccount) {
+				Account.findOne({ where: { user_id: receiver.id } }).then(function(receiverAccount) {
+					database.transaction(function(t) {
+						return senderAccount.update({
+							balance: senderAccount.balance - amount
+						}, { transaction: t }).then(function() {
+							return receiverAccount.update({
+								balance: receiverAccount.balance + amount
+							}, { transaction: t });
+						});
+					}).then(function() {
+						console.log('Transferred ' + amount + ' to ' + recipient);
+						res.redirect('/profile');
+					});
+				});
+			});
 		});
 	});
 });
