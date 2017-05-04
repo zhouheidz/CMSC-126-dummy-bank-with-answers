@@ -70,6 +70,11 @@ app.post('/signin', function(req, res) {
     });
 });
 
+app.get('/signout', function(req, res) {
+	res.clearCookie('currentUser');
+	res.redirect('/');
+});
+
 app.listen(3000, function() {
 	console.log('Server is now running at port 3000');
 });
