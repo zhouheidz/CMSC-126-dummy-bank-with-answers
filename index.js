@@ -77,7 +77,7 @@ app.get('/signout', function(req, res) {
 	res.redirect('/');
 });
 
-app.get('/profile', function(req, res) {
+app.get('/profile', requireSignedIn, function(req, res) {
 	const email = req.cookies.currentUser;
 	User.findOne({ where: { email: email } }).then(function(user) {
 		res.render('profile.html', {
@@ -86,7 +86,7 @@ app.get('/profile', function(req, res) {
 	});
 });
 
-app.post('/transfer', function(req, res) {
+app.post('/transfer', requireSignedIn, function(req, res) {
 	const recipient = req.body.recipient;
 	const amount = parseInt(req.body.amount, 10);
 
@@ -112,6 +112,13 @@ app.post('/transfer', function(req, res) {
 		});
 	});
 });
+
+function requireSignedIn(req, res, next) {
+    if (!req.cookies.currentUser) {
+        return res.redirect('/');
+    }
+    next();
+}
 
 app.listen(3000, function() {
 	console.log('Server is now running at port 3000');
