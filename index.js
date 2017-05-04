@@ -2,7 +2,6 @@ const express = require('express');
 const bodyparser = require('body-parser');
 const cookieparser = require('cookie-parser');
 const consolidate = require('consolidate');
-const bcrypt = require('bcrypt');
 const database = require('./database');
 const User = require('./models').User;
 const Account = require('./models').Account;
@@ -16,65 +15,10 @@ app.use(bodyparser.urlencoded());
 app.use(cookieparser());
 
 app.use('/static', express.static('./static'));
+app.use(require('./auth-routes'));
 
 app.get('/', function(req, res) {
 	res.render('index.html');
-});
-
-app.post('/signup', function(req, res) {
-	const email = req.body.email;
-    const password = req.body.password;
-    const confirmation = req.body.confirmation;
-
-	User.findOne({ where: { email: email } }).then(function(user) {
-        if (user !== null) {
-            console.log('Email is already in use.');
-            return res.redirect('/');
-        }
-		if (password !== confirmation) {
-	        console.log('Passwords do not match.');
-	        return res.redirect('/');
-	    }
-
-        const salt = bcrypt.genSaltSync();
-        const hashedPassword = bcrypt.hashSync(password, salt);
-
-        User.create({
-            email: email,
-            password: hashedPassword,
-            salt: salt
-        }).then(function() {
-            console.log('Signed up successfully!');
-            return res.redirect('/');
-        });
-    });
-});
-
-app.post('/signin', function(req, res) {
-	const email = req.body.email;
-    const password = req.body.password;
-
-	User.findOne({ where: { email: email } }).then(function(user) {
-        if (user === null) {
-            console.log('Incorrect email.');
-            return res.redirect('/');
-        }
-
-		const match = bcrypt.compareSync(password, user.password);
-		if (!match) {
-			console.log('Incorrect password.');
-			return res.redirect('/');
-		}
-
-		console.log('Signed in successfully!');
-		res.cookie('currentUser', user.email);
-		res.redirect('/profile');
-    });
-});
-
-app.get('/signout', function(req, res) {
-	res.clearCookie('currentUser');
-	res.redirect('/');
 });
 
 app.get('/profile', requireSignedIn, function(req, res) {
