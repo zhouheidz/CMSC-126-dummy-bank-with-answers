@@ -51,12 +51,11 @@ Instructions:
   - Each group must have a maximum of three members.
   - Update `(members: )` at the top of this file with a comma-separated list of your group's Gitlab usernames.
 - Fork this repository into one group member's personal account.
-  -
 - Indicate which bonus tasks did you implement.
   - Change `[ ]` in the **Bonus Tasks** list to `[x]`
 
 
-Due Date: **May 9, 2017 (Tuesday), 12:00 noon**
+Due Date: **May 12, 2017 (Friday), 11:59PM**
 
 
 Good luck! :)
