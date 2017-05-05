@@ -1,8 +1,10 @@
 const express = require('express');
 const bodyparser = require('body-parser');
 const cookieparser = require('cookie-parser');
+const session = require('express-session');
+const flash = require('express-flash');
 const consolidate = require('consolidate');
-const bcrypt = require('bcrypt');
+const passport = require('./config/passport');
 const database = require('./database');
 const User = require('./models').User;
 const Account = require('./models').Account;
@@ -13,72 +15,20 @@ app.engine('html', consolidate.nunjucks);
 app.set('views', './views');
 
 app.use(bodyparser.urlencoded());
-app.use(cookieparser());
+app.use(cookieparser('secret-cookie'));
+app.use(session({ resave: false, saveUninitialized: false, secret: 'secret-cookie' }));
+app.use(flash());
+app.use(passport.initialize());
 
 app.use('/static', express.static('./static'));
+app.use(require('./auth-routes'));
 
 app.get('/', function(req, res) {
 	res.render('index.html');
 });
 
-app.post('/signup', function(req, res) {
-	const email = req.body.email;
-    const password = req.body.password;
-    const confirmation = req.body.confirmation;
-
-	User.findOne({ where: { email: email } }).then(function(user) {
-        if (user !== null) {
-            console.log('Email is already in use.');
-            return res.redirect('/');
-        }
-		if (password !== confirmation) {
-	        console.log('Passwords do not match.');
-	        return res.redirect('/');
-	    }
-
-        const salt = bcrypt.genSaltSync();
-        const hashedPassword = bcrypt.hashSync(password, salt);
-
-        User.create({
-            email: email,
-            password: hashedPassword,
-            salt: salt
-        }).then(function() {
-            console.log('Signed up successfully!');
-            return res.redirect('/');
-        });
-    });
-});
-
-app.post('/signin', function(req, res) {
-	const email = req.body.email;
-    const password = req.body.password;
-
-	User.findOne({ where: { email: email } }).then(function(user) {
-        if (user === null) {
-            console.log('Incorrect email.');
-            return res.redirect('/');
-        }
-
-		const match = bcrypt.compareSync(password, user.password);
-		if (!match) {
-			console.log('Incorrect password.');
-			return res.redirect('/');
-		}
-
-		console.log('Signed in successfully!');
-		res.cookie('currentUser', user.email);
-		res.redirect('/profile');
-    });
-});
-
-app.get('/signout', function(req, res) {
-	res.clearCookie('currentUser');
-	res.redirect('/');
-});
-
-app.get('/profile', function(req, res) {
-	const email = req.cookies.currentUser;
+app.get('/profile', requireSignedIn, function(req, res) {
+	const email = req.session.currentUser;
 	User.findOne({ where: { email: email } }).then(function(user) {
 		res.render('profile.html', {
 			user: user
@@ -86,11 +36,11 @@ app.get('/profile', function(req, res) {
 	});
 });
 
-app.post('/transfer', function(req, res) {
+app.post('/transfer', requireSignedIn, function(req, res) {
 	const recipient = req.body.recipient;
 	const amount = parseInt(req.body.amount, 10);
 
-	const email = req.cookies.currentUser;
+	const email = req.session.currentUser;
 	User.findOne({ where: { email: email } }).then(function(sender) {
 		User.findOne({ where: { email: recipient } }).then(function(receiver) {
 			Account.findOne({ where: { user_id: sender.id } }).then(function(senderAccount) {
@@ -104,7 +54,7 @@ app.post('/transfer', function(req, res) {
 							}, { transaction: t });
 						});
 					}).then(function() {
-						console.log('Transferred ' + amount + ' to ' + recipient);
+						req.flash('statusMessage', 'Transferred ' + amount + ' to ' + recipient);
 						res.redirect('/profile');
 					});
 				});
@@ -112,6 +62,24 @@ app.post('/transfer', function(req, res) {
 		});
 	});
 });
+
+app.get('/auth/twitter', passport.authenticate('twitter'));
+app.get('/auth/twitter/callback',
+    passport.authenticate('twitter', {
+        failureRedirect: '/'
+    }),
+    function(req, res) {
+        req.session.currentUser = req.user.email;
+        res.redirect('/profile');
+    }
+);
+
+function requireSignedIn(req, res, next) {
+    if (!req.session.currentUser) {
+        return res.redirect('/');
+    }
+    next();
+}
 
 app.listen(3000, function() {
 	console.log('Server is now running at port 3000');
