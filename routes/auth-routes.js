@@ -1,8 +1,8 @@
 const bcrypt = require('bcrypt');
 const express = require('express');
-const User = require('./models').User;
-const Account = require('./models').Account;
-
+const User = require('../models').User;
+const Account = require('../models').Account;
+const passport = require('../config/passport');
 const router = new express.Router();
 
 router.post('/signup', function(req, res) {

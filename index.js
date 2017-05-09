@@ -8,7 +8,7 @@ const passport = require('./config/passport');
 const database = require('./database');
 const User = require('./models').User;
 const Account = require('./models').Account;
-
+const routes = './routes/auth-routes'; 
 const app = express();
 
 app.engine('html', consolidate.nunjucks);
@@ -21,7 +21,7 @@ app.use(flash());
 app.use(passport.initialize());
 
 app.use('/static', express.static('./static'));
-app.use(require('./auth-routes'));
+app.use(require(routes));
 
 app.get('/', function(req, res) {
 	res.render('index.html');
@@ -99,16 +99,6 @@ app.post('/withdraw', requireSignedIn, function(req, res) {
 	});
 });
 
-app.get('/auth/twitter', passport.authenticate('twitter'));
-app.get('/auth/twitter/callback',
-    passport.authenticate('twitter', {
-        failureRedirect: '/'
-    }),
-    function(req, res) {
-        req.session.currentUser = req.user.email;
-        res.redirect('/profile');
-    }
-);
 
 function requireSignedIn(req, res, next) {
     if (!req.session.currentUser) {
