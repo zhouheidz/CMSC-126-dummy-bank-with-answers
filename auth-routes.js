@@ -1,6 +1,7 @@
 const bcrypt = require('bcrypt');
 const express = require('express');
 const User = require('./models').User;
+const Account = require('./models').Account;
 
 const router = new express.Router();
 
@@ -26,11 +27,16 @@ router.post('/signup', function(req, res) {
             email: email,
             password: hashedPassword,
             salt: salt
+        }).then(function(newuser) {
+            Account.create({
+                balance: 5000,
+                user_id: newuser.id
+            });
         }).then(function() {
             req.flash('signUpMessage', 'Signed up successfully!');
             return res.redirect('/');
-        });
-    });
+        }); 
+    });   
 });
 
 router.post('/signin', function(req, res) {

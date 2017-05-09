@@ -14,7 +14,7 @@ const app = express();
 app.engine('html', consolidate.nunjucks);
 app.set('views', './views');
 
-app.use(bodyparser.urlencoded());
+app.use(bodyparser.urlencoded({extended: true}));
 app.use(cookieparser('secret-cookie'));
 app.use(session({ resave: false, saveUninitialized: false, secret: 'secret-cookie' }));
 app.use(flash());
@@ -58,6 +58,42 @@ app.post('/transfer', requireSignedIn, function(req, res) {
 						res.redirect('/profile');
 					});
 				});
+			});
+		});
+	});
+});
+
+app.post('/deposit', requireSignedIn, function(req, res) {
+	const amount = parseInt(req.body.amount, 10);
+
+	const email = req.session.currentUser;
+	User.findOne({ where: { email: email } }).then(function(sender) {
+		Account.findOne({ where: { user_id: sender.id } }).then(function(senderAccount) {
+			database.transaction(function(t) {
+				return senderAccount.update({
+					balance: senderAccount.balance + amount
+				}, { transaction: t });
+			}).then(function() {
+				req.flash('statusMessage', 'Deposited ' + amount + ' to ' + email);
+				res.redirect('/profile');
+			});
+		});
+	});
+});
+
+app.post('/withdraw', requireSignedIn, function(req, res) {
+	const amount = parseInt(req.body.amount, 10);
+
+	const email = req.session.currentUser;
+	User.findOne({ where: { email: email } }).then(function(sender) {
+		Account.findOne({ where: { user_id: sender.id } }).then(function(senderAccount) {
+			database.transaction(function(t) {
+				return senderAccount.update({
+					balance: senderAccount.balance - amount
+				}, { transaction: t });
+			}).then(function() {
+				req.flash('statusMessage', 'Withdrew ' + amount + ' to ' + email);
+				res.redirect('/profile');
 			});
 		});
 	});
