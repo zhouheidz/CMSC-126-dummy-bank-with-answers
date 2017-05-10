@@ -9,6 +9,7 @@ const database = require('./database');
 const User = require('./models').User;
 const Account = require('./models').Account;
 const routes = './routes/auth-routes'; 
+const twitter = './routes/twitter'
 const app = express();
 
 app.engine('html', consolidate.nunjucks);
@@ -22,6 +23,7 @@ app.use(passport.initialize());
 
 app.use('/static', express.static('./static'));
 app.use(require(routes));
+app.use(require(twitter));
 
 app.get('/', function(req, res) {
 	res.render('index.html');
@@ -98,6 +100,17 @@ app.post('/withdraw', requireSignedIn, function(req, res) {
 		});
 	});
 });
+
+// app.get('/auth/twitter', passport.authenticate('twitter'));
+// app.get('/auth/twitter/callback',
+//     passport.authenticate('twitter', {
+//         failureRedirect: '/'
+//     }),
+//     function(req, res) {
+//         req.session.currentUser = req.user.email;
+//         res.redirect('/profile');
+//     }
+// );
 
 
 function requireSignedIn(req, res, next) {

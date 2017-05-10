@@ -43,5 +43,7 @@ const Account = database.define('accounts', {
     timestamps: true
 });
 
+database.sync();
+
 module.exports.User = User;
 module.exports.Account = Account;
