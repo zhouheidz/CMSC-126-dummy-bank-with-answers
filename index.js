@@ -31,9 +31,15 @@ app.get('/', function(req, res) {
 
 app.get('/profile', requireSignedIn, function(req, res) {
 	const email = req.session.currentUser;
+	var ontop = '';
 	User.findOne({ where: { email: email } }).then(function(user) {
+		if(user.name) {
+			ontop = user.name;
+		} else {
+			ontop = req.session.currentUser;
+		}
 		res.render('profile.html', {
-			user: user
+			user: user, ontop:ontop
 		});
 	});
 });
