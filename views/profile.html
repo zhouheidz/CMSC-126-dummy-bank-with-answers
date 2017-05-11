@@ -24,13 +24,13 @@
         <li class="choose active">
           Transfer
         </li>
-        <li class="pay">
+        <li class="deposit">
           Deposit
         </li>
-        <li class="wrap">
+        <li class="withdraw">
           Withdraw
         </li>
-        <li class="ship">
+        <li class="profile">
           Profile
         </li>
       </ul>
@@ -54,7 +54,10 @@
           <input type="number" name="amount" id="amount">
         </div>
 
-              <button>Transfer</button>
+            <button>Transfer</button>
+          <p>
+            {{ messages.statusMessage }}
+          </p>            
           </form>
 
       </div>
@@ -67,8 +70,10 @@
                   <label for="amount">Deposit Amount</label>
                   <input type="number" name="amount" id="amount">
               </div>
-
               <button>Deposit</button>
+          <p>
+            {{ messages.statusMessage }}
+          </p>              
           </form>
 
       </div>
@@ -82,6 +87,9 @@
               </div>
 
               <button>Withdraw</button>
+          <p>
+            {{ messages.statusMessage }}
+          </p>               
           </form>
       </div>
       <div id="fourth">

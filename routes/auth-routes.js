@@ -8,6 +8,7 @@ const database = require('../database');
 
 router.post('/signup', function(req, res) {
 	const email = req.body.email;
+    const name = req.body.name;
     const password = req.body.password;
     const confirmation = req.body.confirmation;
 
@@ -27,6 +28,7 @@ router.post('/signup', function(req, res) {
         database.transaction(function(t) {
             return User.create({
                 email: email,
+                name: name,
                 password: hashedPassword,
                 salt: salt
             }, {
