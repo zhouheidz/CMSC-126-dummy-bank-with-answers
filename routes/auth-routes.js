@@ -4,6 +4,7 @@ const User = require('../models').User;
 const Account = require('../models').Account;
 const passport = require('../config/passport');
 const router = new express.Router();
+const database = require('./database');
 
 router.post('/signup', function(req, res) {
 	const email = req.body.email;
@@ -23,19 +24,22 @@ router.post('/signup', function(req, res) {
         const salt = bcrypt.genSaltSync();
         const hashedPassword = bcrypt.hashSync(password, salt);
 
-        User.create({
-            email: email,
-            password: hashedPassword,
-            salt: salt
-        }).then(function(newuser) {
-            Account.create({
-                balance: 5000,
-                user_id: newuser.id
-            });
-        }).then(function() {
-            req.flash('signUpMessage', 'Signed up successfully!');
-            return res.redirect('/');
-        }); 
+        database.transaction(function(t) {
+            return User.create({
+                email: email,
+                password: hashedPassword,
+                salt: salt
+            }, {
+                transaction: t
+            }).then(function(newuser) {
+                Account.create({
+                    user_id: newuser.id
+                });
+            }).then(function() {
+                req.flash('signUpMessage', 'Signed up successfully!');
+                return res.redirect('/');
+            }); 
+        });
     });   
 });
 
