@@ -10,6 +10,8 @@ passport.use(new TwitterPassport({
     User.findOrCreate({
         where: { email: profile.username },
         defaults: { password: '' }
+    }).then(function(user) {
+        where: { id: user.id}
     }).then(function(result) {
         cb(null, result[0]);
     });
