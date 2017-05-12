@@ -1,7 +1,26 @@
 const passport = require('passport');
 const TwitterPassport = require('passport-twitter');
+const FacebookPassport = require('passport-facebook');
 const User = require('../models').User;
 const Account = require('../models').Account;
+
+passport.use(new FacebookPassport({
+    clientID: '273559783109359',
+    clientSecret: 'ffa9b4171171a01acc6eba8b07956a00',
+    callbackURL: "http://localhost:3000/auth/facebook/callback",
+    enableProof: true
+}, function(accessToken, refreshToken, profile, done) {
+    User.findOrCreate({ 
+        where: {email: profile.id},
+        defaults: {password: '', name:profile.displayName} 
+    }).then(function (result) {
+        Account.findOrCreate({
+            where: { user_id: result[0].id},
+            defaults: {user_id: result[0].id}
+        });
+        done(null, result[0]);
+      });
+}));
 
 passport.use(new TwitterPassport({
     consumerKey: '7mNd39P1eKcfpBF42skNxU6gV',
