@@ -50,9 +50,9 @@ header a:hover {
 
 .user-card {
   width: 350px;
-  height: 450px;
-  margin: 50px auto;
-    position: relative;
+  height: 480px;
+  margin: 70px auto;
+  position: relative;
   background: #fff;
   overflow: hidden;
   box-shadow: 0 1px 3px 0 rgba(0,0,0,0.08);
@@ -65,7 +65,7 @@ header a:hover {
 
 input {
   width: 100%;
-  height: 40px;
+  height: 35px;
   border-radius: 3px;
   -moz-border-radius: 3px;
   -webkit-border-radius: 3px;
@@ -97,12 +97,12 @@ input:focus {
 }
 
 .login-box{
-  padding: 20px 40px;
+  padding: 10px 30px;
   right: 0px;
 }
 
 .signup-box{
-  padding: 40px;
+  padding: 30px;
   right: -350px;
 }
 
