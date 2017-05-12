@@ -1,6 +1,6 @@
 # Lab Exercise 4: Improving the Dummy Bank
 
-(members: )
+(members: zhouheidz, baishie)
 
 There are several things in the **Dummy Bank** application which can be improved. Your goal is to complete the following checklist of tasks that need to be implemented/fixed/refactored.
 
