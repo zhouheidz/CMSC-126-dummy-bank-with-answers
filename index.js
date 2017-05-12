@@ -31,14 +31,22 @@ app.get('/', function(req, res) {
 	res.render('index.html');
 });
 
+var user = function retrieveSignedInUser(req, res, next) {
+	req.user = req.session.currentUser;
+	next();
+}
+
+app.use(user);
+
 app.get('/profile', requireSignedIn, function(req, res) {
-	const email = req.session.currentUser;
+	const email = req.user;
+	console.log('email is ' + email);
 	var ontop = '';
 	User.findOne({ where: { email: email } }).then(function(user) {
 		if(user.name) {
 			ontop = user.name;
 		} else {
-			ontop = req.session.currentUser;
+			ontop = req.user;
 		}
 		res.render('profile.html', {
 			user: user, ontop:ontop
@@ -50,7 +58,7 @@ app.post('/transfer', requireSignedIn, function(req, res) {
 	const recipient = req.body.recipient;
 	const amount = parseInt(req.body.amount, 10);
 
-	const email = req.session.currentUser;
+	const email = req.user;
 	User.findOne({ where: { email: email } }).then(function(sender) {
 		User.findOne({ where: { email: recipient } }).then(function(receiver) {
 			Account.findOne({ where: { user_id: sender.id } }).then(function(senderAccount) {
@@ -76,7 +84,7 @@ app.post('/transfer', requireSignedIn, function(req, res) {
 app.post('/deposit', requireSignedIn, function(req, res) {
 	const amount = parseInt(req.body.amount, 10);
 
-	const email = req.session.currentUser;
+	const email = req.user;
 	User.findOne({ where: { email: email } }).then(function(sender) {
 		Account.findOne({ where: { user_id: sender.id } }).then(function(senderAccount) {
 			database.transaction(function(t) {
@@ -94,7 +102,7 @@ app.post('/deposit', requireSignedIn, function(req, res) {
 app.post('/withdraw', requireSignedIn, function(req, res) {
 	const amount = parseInt(req.body.amount, 10);
 
-	const email = req.session.currentUser;
+	const email = req.user;
 	User.findOne({ where: { email: email } }).then(function(sender) {
 		Account.findOne({ where: { user_id: sender.id } }).then(function(senderAccount) {
 			database.transaction(function(t) {
