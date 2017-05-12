@@ -57,28 +57,52 @@ app.get('/profile', requireSignedIn, function(req, res) {
 app.post('/transfer', requireSignedIn, function(req, res) {
 	const recipient = req.body.recipient;
 	const amount = parseInt(req.body.amount, 10);
+	const email = req.session.currentUser;
 
-	const email = req.user;
-	User.findOne({ where: { email: email } }).then(function(sender) {
-		User.findOne({ where: { email: recipient } }).then(function(receiver) {
-			Account.findOne({ where: { user_id: sender.id } }).then(function(senderAccount) {
-				Account.findOne({ where: { user_id: receiver.id } }).then(function(receiverAccount) {
-					database.transaction(function(t) {
-						return senderAccount.update({
-							balance: senderAccount.balance - amount
-						}, { transaction: t }).then(function() {
-							return receiverAccount.update({
-								balance: receiverAccount.balance + amount
-							}, { transaction: t });
-						});
-					}).then(function() {
-						req.flash('statusMessage', 'Transferred ' + amount + ' to ' + recipient);
-						res.redirect('/profile');
-					});
-				});
-			});
-		});
-	});
+	const q1 = "SELECT user_id, balance FROM accounts WHERE user_id in (SELECT id FROM users WHERE email ='" +email+ "');";
+	const q2 = "SELECT user_id, balance FROM accounts WHERE user_id in (SELECT id FROM users WHERE email ='" +recipient+ "');";	
+
+	database.query(q1, { model: User }).spread(function (results) {
+		database.query(q2, {model:User}).spread(function (results2) {
+			var userId = (results.get('user_id'))
+			var userBalance = results.get('balance')
+			var recId = results2.get('user_id')
+			var recBalance = results2.get('balance')
+			userBalance = userBalance - amount
+			recBalance = recBalance + amount
+			var q3 = "UPDATE accounts SET balance =" + userBalance + "where user_id = " +userId + ";" 
+			var q4 = "UPDATE accounts SET balance =" + recBalance + "where user_id = " +recId + ";" 
+			database.query(q3, { model: Account }).then(function (result3) {
+				database.query(q4, {model: Account}).then(function (result4) {
+				})
+			})
+		})
+	}).then (function () {
+		req.flash('statusMessage', 'Transferred ' + amount + ' to ' + recipient);
+		res.redirect('/profile');		
+	})
+
+	// User.findOne({ where: { email: email } }).then(function(sender) {
+	// 	User.findOne({ where: { email: recipient } }).then(function(receiver) {
+	// 		Account.findOne({ where: { user_id: sender.id } }).then(function(senderAccount) {
+	// 			Account.findOne({ where: { user_id: receiver.id } }).then(function(receiverAccount) {
+	// 				database.transaction(function(t) {
+	// 					return senderAccount.update({
+	// 						balance: senderAccount.balance - amount
+	// 					}, { transaction: t }).then(function() {
+	// 						return receiverAccount.update({
+	// 							balance: receiverAccount.balance + amount
+	// 						}, { transaction: t });
+	// 					});
+	// 				}).then(function() {
+	// 					req.flash('statusMessage', 'Transferred ' + amount + ' to ' + recipient);
+	// 					res.redirect('/profile');
+	// 				});
+	// 			});
+	// 		});
+	// 	});
+	// });
+
 });
 
 app.post('/deposit', requireSignedIn, function(req, res) {
