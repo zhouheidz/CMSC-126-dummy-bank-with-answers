@@ -1,5 +1,6 @@
 const passport = require('passport');
 const TwitterPassport = require('passport-twitter');
+const GoogleStrategy = require('passport-google-oauth2').Strategy;
 const FacebookPassport = require('passport-facebook');
 const User = require('../models').User;
 const Account = require('../models').Account;
@@ -21,6 +22,27 @@ passport.use(new FacebookPassport({
         done(null, result[0]);
       });
 }));
+
+passport.use(new GoogleStrategy({
+    clientID: '1084488263408-p4k612ctk3mpsulfr9fpskuqde9fvjgp.apps.googleusercontent.com',
+    clientSecret: 'N7562kTaTFU8vqdGiE3UIYLF',
+    callbackURL: 'http://localhost:3000/auth/google/callback',
+    passReqToCallback   : true
+  },
+  function(request, accessToken, refreshToken, profile, done) {
+    process.nextTick(function () {
+    User.findOrCreate({
+        where: { 
+            email: profile.emails[0].value,
+            name: profile.displayName 
+        }, defaults: { 
+            password: '' 
+        }
+    })
+      return done(null, profile);
+    });
+  }
+));
 
 passport.use(new TwitterPassport({
     consumerKey: '7mNd39P1eKcfpBF42skNxU6gV',

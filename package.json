@@ -9,7 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "bcrypt": "^1.0.2",
+    "bcrypt": "^1.0.3",
     "body-parser": "^1.17.1",
     "consolidate": "^0.14.5",
     "cookie-parser": "^1.4.3",
@@ -20,6 +20,7 @@
     "passport": "^0.3.2",
     "passport-facebook": "^2.1.1",
     "passport-google-oauth": "^1.0.0",
+    "passport-google-oauth2": "^0.1.6",
     "passport-twitter": "^1.0.4",
     "pg": "^6.1.5",
     "sequelize": "^3.30.4",

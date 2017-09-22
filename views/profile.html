@@ -56,8 +56,20 @@
 
             <button>Transfer</button>
           <p>
-            {{ messages.statusMessage }}
-          </p>            
+            {{ messages.statusMessage1 }}
+          </p>  
+          <p>
+            {{ messages.check11 }}
+          </p>
+          <p>
+            {{ messages.check12 }}
+          </p> 
+          <p>
+            {{ messages.check13 }}
+          </p> 
+          <p>
+            {{ messages.check14 }}
+          </p>             
           </form>
 
       </div>
@@ -73,7 +85,10 @@
               <button>Deposit</button>
           <p>
             {{ messages.statusMessage }}
-          </p>              
+          </p> 
+          <p>
+            {{ messages.check }}
+          </p>               
           </form>
 
       </div>
@@ -89,12 +104,17 @@
               <button>Withdraw</button>
           <p>
             {{ messages.statusMessage }}
+          </p>   
+          <p>
+            {{ messages.check }}
           </p>               
           </form>
       </div>
       <div id="fourth">
         <h1>Profile</h1>
-        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec at viverra est, eu finibus mauris. Quisque tempus vestibulum fringilla. Morbi tortor eros, sollicitudin eu arcu sit amet, aliquet sagittis dolor. </p>
+        <p>
+         Balance: {{ balance }}
+        </p>
       </div>
     </div>
   </div>
