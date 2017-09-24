@@ -137,7 +137,6 @@ app.post('/transfer', requireSignedIn, function(req, res) {
 
 app.post('/deposit', requireSignedIn, function(req, res) {
 	const amount = parseInt(req.body.amount, 10);
-
 	const email = req.user;
 	var userBalance;
 	User.findOne({ where: { email: email } }).then(function(sender) {
@@ -150,7 +149,7 @@ app.post('/deposit', requireSignedIn, function(req, res) {
 			}).then(function() {
 
 				req.flash('check', 'Balance should be '+(userBalance+amount));
-				req.flash('statusMessage', 'Deposited ' + amount + ' to ' + email);
+				req.flash('statusMessage2', 'Deposited ' + amount + ' to ' + email);
 				res.redirect('/profile');
 			});
 		});
@@ -159,16 +158,18 @@ app.post('/deposit', requireSignedIn, function(req, res) {
 
 app.post('/withdraw', requireSignedIn, function(req, res) {
 	const amount = parseInt(req.body.amount, 10);
-
 	const email = req.user;
+	var userBalance;	
 	User.findOne({ where: { email: email } }).then(function(sender) {
 		Account.findOne({ where: { user_id: sender.id } }).then(function(senderAccount) {
+			userBalance = senderAccount.balance;
 			database.transaction(function(t) {
 				return senderAccount.update({
 					balance: senderAccount.balance - amount
 				}, { transaction: t });
 			}).then(function() {
-				req.flash('statusMessage', 'Withdrew ' + amount + ' to ' + email);
+				req.flash('check2', 'Balance should be '+(userBalance-amount));				
+				req.flash('statusMessage3', 'Withdrew ' + amount + ' to ' + email);
 				res.redirect('/profile');
 			});
 		});
