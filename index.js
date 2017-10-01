@@ -33,6 +33,7 @@ app.get('/', function(req, res) {
 	res.render('index.html');
 });
 
+//the retrieveSignedInUser retrieves the current user that is signed-in in the app.
 var user = function retrieveSignedInUser(req, res, next) {
 	req.user = req.session.currentUser;
 	next();
@@ -40,11 +41,15 @@ var user = function retrieveSignedInUser(req, res, next) {
 
 app.use(user);
 
+
+//this function redirects the user to the profile page
 app.get('/profile', requireSignedIn, function(req, res) {
 	const email = req.user;
 	console.log('email is ' + email);
 	var ontop = '';
 	var balance = '';
+
+	//the function below simply finds who is the current user inorder to display the name in the profile
 	User.findOne({ where: { email: email } }).then(function(user) {
 		if(user.name) {
 			ontop = user.name;
@@ -62,6 +67,7 @@ app.get('/profile', requireSignedIn, function(req, res) {
 	});
 });
 
+//this function is for transferring money to other accounts.
 app.post('/transfer', requireSignedIn, function(req, res) {
 	const recipient = req.body.recipient;
 	const amount = parseInt(req.body.amount, 10);
@@ -135,6 +141,7 @@ app.post('/transfer', requireSignedIn, function(req, res) {
 
 });
 
+//this function is for depositing money to the account of the user.
 app.post('/deposit', requireSignedIn, function(req, res) {
 	const amount = parseInt(req.body.amount, 10);
 	const email = req.user;
@@ -156,6 +163,7 @@ app.post('/deposit', requireSignedIn, function(req, res) {
 	});
 });
 
+//this function is for withdrawing money from the user's account
 app.post('/withdraw', requireSignedIn, function(req, res) {
 	const amount = parseInt(req.body.amount, 10);
 	const email = req.user;
@@ -166,7 +174,9 @@ app.post('/withdraw', requireSignedIn, function(req, res) {
 			database.transaction(function(t) {
 				return senderAccount.update({
 					balance: senderAccount.balance - amount
-				}, { transaction: t });
+				}, { 
+					transaction: t 
+				});
 			}).then(function() {
 				req.flash('check2', 'Balance should be '+(userBalance-amount));				
 				req.flash('statusMessage3', 'Withdrew ' + amount + ' to ' + email);
@@ -176,6 +186,8 @@ app.post('/withdraw', requireSignedIn, function(req, res) {
 	});
 });
 
+//the requiredSignedIn function simply checkes the sessions of the user (e.g. the user is currently
+//signed-in.)
 function requireSignedIn(req, res, next) {
     if (!req.session.currentUser) {
         return res.redirect('/');
