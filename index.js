@@ -99,11 +99,11 @@ app.post('/transfer', requireSignedIn, function(req, res) {
 			var q4 = "UPDATE accounts SET balance =" + recBalance + "where user_id = " +recId + ";" 
 			database.query(q3, { model: Account }).then(function (result3) {
 				database.query(q4, {model: Account}).then(function (result4) {
-					req.flash('check11', 'Balance for ' + id1 +  ' should be ' + (userAmount-amount));
-					req.flash('check12', 'Balance for ' + id2 +  ' should be ' + (recAmount+amount));
-					req.flash('check13', 'Balance in ' + id1 +  ' is ' + userBalance);
-					req.flash('check14', 'Balance in ' + id2 +  ' is ' + recBalance);
-					req.flash('statusMessage1', 'Transferred ' + amount + ' to ' + recipient);
+					req.flash('userbalance', 'Balance for ' + id1 +  ' should be ' + (userAmount-amount));
+					req.flash('recbalance', 'Balance for ' + id2 +  ' should be ' + (recAmount+amount));
+					req.flash('actualuserbalance', 'Balance in ' + id1 +  ' is ' + userBalance);
+					req.flash('actualrecbalance', 'Balance in ' + id2 +  ' is ' + recBalance);
+					req.flash('transfermsg', 'Transferred ' + amount + ' to ' + recipient);
 					res.redirect('/profile');	
 				})
 			})
@@ -156,8 +156,8 @@ app.post('/deposit', requireSignedIn, function(req, res) {
 				}, { transaction: t });
 			}).then(function() {
 
-				req.flash('check', 'Balance should be '+(userBalance+amount));
-				req.flash('statusMessage2', 'Deposited ' + amount + ' to ' + email);
+				req.flash('actualbaldeposit', 'Balance should be '+(userBalance+amount));
+				req.flash('depositmsg', 'Deposited ' + amount + ' to ' + email);
 				res.redirect('/profile');
 			});
 		});
@@ -179,8 +179,8 @@ app.post('/withdraw', requireSignedIn, function(req, res) {
 					transaction: t 
 				});
 			}).then(function() {
-				req.flash('check2', 'Balance should be '+(userBalance-amount));				
-				req.flash('statusMessage3', 'Withdrew ' + amount + ' to ' + email);
+				req.flash('actualbalwithdraw', 'Balance should be '+(userBalance-amount));				
+				req.flash('withdrawmsg', 'Withdrew ' + amount + ' to ' + email);
 				res.redirect('/profile');
 			});
 		});
