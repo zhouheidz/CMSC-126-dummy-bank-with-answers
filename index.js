@@ -46,22 +46,22 @@ app.use(user);
 app.get('/profile', requireSignedIn, function(req, res) {
 	const email = req.user;
 	console.log('email is ' + email);
-	var ontop = '';
+	var header = '';
 	var balance = '';
 
 	//the function below simply finds who is the current user inorder to display the name in the profile
 	User.findOne({ where: { email: email } }).then(function(user) {
 		if(user.name) {
-			ontop = user.name;
+			header = user.name;
 		} else {
-			ontop = req.user;
+			header = req.user;
 		}
 		Account.findOne({ where: { user_id: user.id } }).then(function(userAccount) {
 			balance = userAccount.balance;
 			console.log("userAccount "+userAccount);
 			console.log("balance is "+balance)
 			res.render('profile.html', {
-				user: user, ontop:ontop, balance:balance
+				user: user, header:header, balance:balance
 			});
 		});
 	});
