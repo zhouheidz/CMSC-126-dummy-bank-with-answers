@@ -231,7 +231,6 @@ app.post('/withdraw', requireSignedIn, function(req, res) {
 		req.flash('withdrawmsg', 'Amount should be greater than zero');
 		res.redirect('/profile');
 	}
-
 	// User.findOne({ where: { email: email } }).then(function(sender) {
 	// 	Account.findOne({ where: { user_id: sender.id } }).then(function(senderAccount) {
 	// 		userBalance = senderAccount.balance;
