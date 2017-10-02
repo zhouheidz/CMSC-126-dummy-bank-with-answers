@@ -45,7 +45,7 @@ app.use(user);
 //this function redirects the user to the profile page
 app.get('/profile', requireSignedIn, function(req, res) {
 	const email = req.user;
-	console.log('email is ' + email);
+	// console.log('email is ' + email);
 	var header = '';
 	var balance = '';
 
@@ -146,46 +146,88 @@ app.post('/transfer', requireSignedIn, function(req, res) {
 app.post('/deposit', requireSignedIn, function(req, res) {
 	const amount = parseInt(req.body.amount, 10);
 	const email = req.user;
-	var userBalance;
-	User.findOne({ where: { email: email } }).then(function(sender) {
+	
+	getUserBalance(email, function(userBalance, userAccount){
+		database.transaction(function(t){
+			return userAccount.update({
+				balance: userAccount.balance + amount
+			}, {
+				 transaction: t 
+			});
+		}).then(function(){
+			req.flash('actualbaldeposit', 'Balance should be '+(userBalance+amount));
+			req.flash('depositmsg', 'Deposited ' + amount + ' to ' + email);
+			res.redirect('/profile');
+		});
+	});
+	/*User.findOne({ where: { email: email } }).then(function(sender) {
 		Account.findOne({ where: { user_id: sender.id } }).then(function(senderAccount) {
 			userBalance = senderAccount.balance;
 			database.transaction(function(t) {
 				return senderAccount.update({
 					balance: senderAccount.balance + amount
 				}, { transaction: t });
-			}).then(function() {
-
+			}).then(function() {				
 				req.flash('actualbaldeposit', 'Balance should be '+(userBalance+amount));
 				req.flash('depositmsg', 'Deposited ' + amount + ' to ' + email);
 				res.redirect('/profile');
 			});
 		});
-	});
+	});*/
 });
 
 //this function is for withdrawing money from the user's account
 app.post('/withdraw', requireSignedIn, function(req, res) {
 	const amount = parseInt(req.body.amount, 10);
 	const email = req.user;
-	var userBalance;	
-	User.findOne({ where: { email: email } }).then(function(sender) {
-		Account.findOne({ where: { user_id: sender.id } }).then(function(senderAccount) {
-			userBalance = senderAccount.balance;
-			database.transaction(function(t) {
-				return senderAccount.update({
-					balance: senderAccount.balance - amount
-				}, { 
-					transaction: t 
-				});
-			}).then(function() {
-				req.flash('actualbalwithdraw', 'Balance should be '+(userBalance-amount));				
-				req.flash('withdrawmsg', 'Withdrew ' + amount + ' to ' + email);
-				res.redirect('/profile');
+	var userBalance = getUserBalance (email)
+	getUserBalance (email, function (userBalance, userAccount){
+		database.transaction(function(t) {
+			return userAccount.update({
+				balance: userAccount.balance - amount
+			}, { 
+				transaction: t 
 			});
+		}).then(function() {
+			req.flash('actualbalwithdraw', 'Balance should be '+(userBalance-amount));				
+			req.flash('withdrawmsg', 'Withdrew ' + amount + ' to ' + email);
+			res.redirect('/profile');
+		});		
+	});
+
+	// User.findOne({ where: { email: email } }).then(function(sender) {
+	// 	Account.findOne({ where: { user_id: sender.id } }).then(function(senderAccount) {
+	// 		userBalance = senderAccount.balance;
+	// 		database.transaction(function(t) {
+	// 			return senderAccount.update({
+	// 				balance: senderAccount.balance - amount
+	// 			}, { 
+	// 				transaction: t 
+	// 			});
+	// 		}).then(function() {
+	// 			req.flash('actualbalwithdraw', 'Balance should be '+(userBalance-amount));				
+	// 			req.flash('withdrawmsg', 'Withdrew ' + amount + ' to ' + email);
+	// 			res.redirect('/profile');
+	// 		});
+	// 	});
+	// });
+});
+
+//function call to return the userbalance and useraccount given the email.
+function getUserBalance(email, callback) {
+	console.log(email + " ANG EMAIL")
+	var localUserBalance = '';
+	var balance = '';
+	//the function below simply finds who is the current user inorder to display the name in the profile
+	User.findOne({ where: { email: email } }).then(function(user) {
+		Account.findOne({ where: { user_id: user.id } }).then(function(userAccount) {
+			balance = userAccount.balance;
+			console.log("userAccount "+userAccount);
+			console.log("balance is "+balance)						
+			callback(balance,userAccount)
 		});
 	});
-});
+}
 
 //the requiredSignedIn function simply checkes the sessions of the user (e.g. the user is currently
 //signed-in.)
