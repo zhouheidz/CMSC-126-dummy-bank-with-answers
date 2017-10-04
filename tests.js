@@ -17,4 +17,10 @@ describe('Dummy Bank Tests', function() {
   it('Transferring an amount less than zero', function(){
     return chai.expect(validAmount(-1)).to.deep.equal(false);
   });
+  it('Withdrawing an amount greater than zero', function(){
+    return chai.expect(validAmount(1)).to.deep.equal(true);
+  });  
+  it('Withdrawing an amount less than zero', function(){
+    return chai.expect(validAmount(-1)).to.deep.equal(false);
+  });   
 });
