@@ -168,7 +168,7 @@ app.post('/deposit', requireSignedIn, function(req, res) {
 	const email = req.user;
 	
 	if(validAmount(amount)){
-		getUserBalance(email, function(userBalance, userAccount){
+		getUserDetails(email, function(userBalance, userAccount){
 			database.transaction(function(t){
 				return userAccount.update({
 					balance: userAccount.balance + amount
@@ -208,7 +208,7 @@ app.post('/withdraw', requireSignedIn, function(req, res) {
 	const email = req.user;
 
 	if(validAmount(amount)){		
-		getUserBalance (email, function (userBalance, userAccount){
+		getUserDetails (email, function (userBalance, userAccount){
 			var sufficientBalance = userBalance > amount? true:false;
 			if(sufficientBalance){
 				database.transaction(function(t) {
@@ -250,11 +250,10 @@ app.post('/withdraw', requireSignedIn, function(req, res) {
 });
 
 //function call to return the userbalance and useraccount given the email.
-function getUserBalance(email, callback) {
+function getUserDetails(email, callback) {
 	console.log(email + " ANG EMAIL")
 	var localUserBalance = '';
 	var balance = '';
-	//the function below simply finds who is the current user inorder to display the name in the profile
 	User.findOne({ where: { email: email } }).then(function(user) {
 		Account.findOne({ where: { user_id: user.id } }).then(function(userAccount) {
 			balance = userAccount.balance;
