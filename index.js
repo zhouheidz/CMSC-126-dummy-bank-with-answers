@@ -45,7 +45,6 @@ app.use(user);
 //this function redirects the user to the profile page
 app.get('/profile', requireSignedIn, function(req, res) {
 	const email = req.user;
-	// console.log('email is ' + email);
 	var header = '';
 	var balance = '';
 
@@ -67,7 +66,15 @@ app.get('/profile', requireSignedIn, function(req, res) {
 	});
 });
 
-//this function is for transferring money to other accounts.
+/*
+this function is for withdrawing money from the user's account
+ Refactored:
+ 	- Added additional checking
+ 		- validAmount(amount) which checks if the amount to be withdrawed is a value greater than 0.
+ 		- check if account has sufficient balance
+ 	- Minimized nested queries
+ 		- Improved readability of code by using direct queries instead of Sequelized queries
+*/
 app.post('/transfer', requireSignedIn, function(req, res) {
 	const recipient = req.body.recipient;
 	const amount = parseInt(req.body.amount, 10);
@@ -128,41 +135,15 @@ app.post('/transfer', requireSignedIn, function(req, res) {
 		res.redirect('/profile');	
 	}
 
-		
-
-	// var balance1;
-	// var balance2;
-
-	// User.findOne({ where: { email: email } }).then(function(sender) {
-	// 	User.findOne({ where: { email: recipient } }).then(function(receiver) {
-	// 		Account.findOne({ where: { user_id: sender.id } }).then(function(senderAccount) {
-	// 			Account.findOne({ where: { user_id: receiver.id } }).then(function(receiverAccount) {
-	// 				database.transaction(function(t) {
-	// 					balance1 = senderAccount.balance - amount;
-	// 					return senderAccount.update({
-	// 						balance: senderAccount.balance - amount
-	// 					}, { transaction: t }).then(function() {
-	// 						balance2 = receiverAccount.balance + amount;
-	// 						return receiverAccount.update({
-	// 							balance: receiverAccount.balance + amount
-	// 						}, { transaction: t });
-	// 					});
-	// 				}).then(function() {
-	// 					req.flash('check11', 'Balance for ' + sender.id +  ' should be ' + (senderAccount.balance));
-	// 					req.flash('check12', 'Balance for ' + receiver.id +  ' should be ' + (receiverAccount.balance));
-	// 					req.flash('check13', 'Balance in ' + sender.id +  ' is ' + (balance1));
-	// 					req.flash('check14', 'Balance in ' + receiver.id +  ' is ' + (balance2));
-	// 					req.flash('statusMessage1', 'Transferred ' + amount + ' to ' + recipient);
-	// 					res.redirect('/profile');
-	// 				});
-	// 			});
-	// 		});
-	// 	});
-	// });
-
 });
 
-//this function is for depositing money to the account of the user.
+/*
+this function is for depositing money to the account of the user.
+ Refactored:
+ 	- Added additional checking
+ 		- validAmount(amount) which checks if the amount to be withdrawed is a value greater than 0.
+ 	- Created a routine that retrieves the user balance, which is used in withdraw and deposit.
+*/
 app.post('/deposit', requireSignedIn, function(req, res) {
 	const amount = parseInt(req.body.amount, 10);
 	const email = req.user;
@@ -186,23 +167,16 @@ app.post('/deposit', requireSignedIn, function(req, res) {
 		res.redirect('/profile');
 	}
 	
-	/*User.findOne({ where: { email: email } }).then(function(sender) {
-		Account.findOne({ where: { user_id: sender.id } }).then(function(senderAccount) {
-			userBalance = senderAccount.balance;
-			database.transaction(function(t) {
-				return senderAccount.update({
-					balance: senderAccount.balance + amount
-				}, { transaction: t });
-			}).then(function() {				
-				req.flash('actualbaldeposit', 'Balance should be '+(userBalance+amount));
-				req.flash('depositmsg', 'Deposited ' + amount + ' to ' + email);
-				res.redirect('/profile');
-			});
-		});
-	});*/
 });
 
-//this function is for withdrawing money from the user's account
+/*
+this function is for withdrawing money from the user's account
+ Refactored:
+ 	- Added additional checking
+ 		- validAmount(amount) which checks if the amount to be withdrawed is a value greater than 0.
+ 		- check if account has sufficient balance
+ 	- Created a routine that retrieves the user balance, which is used in withdraw and deposit.
+*/
 app.post('/withdraw', requireSignedIn, function(req, res) {
 	const amount = parseInt(req.body.amount, 10);
 	const email = req.user;
@@ -230,23 +204,7 @@ app.post('/withdraw', requireSignedIn, function(req, res) {
 	}else{
 		req.flash('withdrawmsg', 'Amount should be greater than zero');
 		res.redirect('/profile');
-	}
-	// User.findOne({ where: { email: email } }).then(function(sender) {
-	// 	Account.findOne({ where: { user_id: sender.id } }).then(function(senderAccount) {
-	// 		userBalance = senderAccount.balance;
-	// 		database.transaction(function(t) {
-	// 			return senderAccount.update({
-	// 				balance: senderAccount.balance - amount
-	// 			}, { 
-	// 				transaction: t 
-	// 			});
-	// 		}).then(function() {
-	// 			req.flash('actualbalwithdraw', 'Balance should be '+(userBalance-amount));				
-	// 			req.flash('withdrawmsg', 'Withdrew ' + amount + ' to ' + email);
-	// 			res.redirect('/profile');
-	// 		});
-	// 	});
-	// });
+	}	
 });
 
 //function call to return the userbalance and useraccount given the email.
