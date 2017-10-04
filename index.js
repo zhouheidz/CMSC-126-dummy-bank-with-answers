@@ -57,8 +57,6 @@ app.get('/profile', requireSignedIn, function(req, res) {
 		}
 		Account.findOne({ where: { user_id: user.id } }).then(function(userAccount) {
 			balance = userAccount.balance;
-			console.log("userAccount "+userAccount);
-			console.log("balance is "+balance)
 			res.render('profile.html', {
 				user: user, header:header, balance:balance
 			});
@@ -94,11 +92,8 @@ app.post('/transfer', requireSignedIn, function(req, res) {
 			if(validAmount(amount) == true){	
 				database.query(q1, { model: User }).spread(function (results) {
 					database.query(q2, {model:User}).spread(function (results2) {
-						console.log(results2);
 						id1 = parseInt(results.get('user_id'));
 						id2 = parseInt(results2.get('user_id'));
-						console.log('ID1 ' + id1);
-						console.log('ID2 ' + id2);
 						userAmount = parseInt(results.get('balance'));
 						recAmount = parseInt(results2.get('balance'));
 						var userId = (results.get('user_id'));
@@ -214,14 +209,11 @@ app.post('/withdraw', requireSignedIn, function(req, res) {
 
 //function call to return the userbalance and useraccount given the email.
 function getUserDetails(email, callback) {
-	console.log(email + " ANG EMAIL")
 	var localUserBalance = '';
 	var balance = '';
 	User.findOne({ where: { email: email } }).then(function(user) {
 		Account.findOne({ where: { user_id: user.id } }).then(function(userAccount) {
-			balance = userAccount.balance;
-			console.log("userAccount "+userAccount);
-			console.log("balance is "+balance)						
+			balance = userAccount.balance;					
 			callback(balance,userAccount)
 		});
 	});
