@@ -86,54 +86,59 @@ app.post('/transfer', requireSignedIn, function(req, res) {
 
 	const q1 = "SELECT user_id, balance FROM accounts WHERE user_id in (SELECT id FROM users WHERE email ='" +email+ "');";
 	const q2 = "SELECT user_id, balance FROM accounts WHERE user_id in (SELECT id FROM users WHERE email ='" +recipient+ "');";	
+	console.log("existingUser = "+existingUser(recipient))
+	
+	existingUser(recipient, function(result) {
+		if(result == true) {
+			console.log("USER EXISTS NOW CHECKING IF AMOUNT IS VALID")
+			if(validAmount(amount) == true){	
+				database.query(q1, { model: User }).spread(function (results) {
+					database.query(q2, {model:User}).spread(function (results2) {
+						console.log(results2);
+						id1 = parseInt(results.get('user_id'));
+						id2 = parseInt(results2.get('user_id'));
+						console.log('ID1 ' + id1);
+						console.log('ID2 ' + id2);
+						userAmount = parseInt(results.get('balance'));
+						recAmount = parseInt(results2.get('balance'));
+						var userId = (results.get('user_id'));
+						var userBalance = results.get('balance');
+						var recId = results2.get('user_id');
+						var recBalance = results2.get('balance');
 
-	if(existingUser(recipient)) {
-		if(validAmount(amount)){	
-			database.query(q1, { model: User }).spread(function (results) {
-				database.query(q2, {model:User}).spread(function (results2) {
-					console.log(results2);
-					id1 = parseInt(results.get('user_id'));
-					id2 = parseInt(results2.get('user_id'));
-					console.log('ID1 ' + id1);
-					console.log('ID2 ' + id2);
-					userAmount = parseInt(results.get('balance'));
-					recAmount = parseInt(results2.get('balance'));
-					var userId = (results.get('user_id'));
-					var userBalance = results.get('balance');
-					var recId = results2.get('user_id');
-					var recBalance = results2.get('balance');
-
-					var sufficientBalance = userBalance > amount? true:false;
-					if(sufficientBalance){
-					
-						userBalance = userBalance - amount;
-						recBalance = recBalance + amount;
-						var q3 = "UPDATE accounts SET balance =" + userBalance + "where user_id = " +userId + ";"; 
-						var q4 = "UPDATE accounts SET balance =" + recBalance + "where user_id = " +recId + ";" 
-						database.query(q3, { model: Account }).then(function (result3) {
-							database.query(q4, {model: Account}).then(function (result4) {
-								req.flash('userbalance', 'Balance for ' + id1 +  ' should be ' + (userAmount-amount));
-								req.flash('recbalance', 'Balance for ' + id2 +  ' should be ' + (recAmount+amount));
-								req.flash('actualuserbalance', 'Balance in ' + id1 +  ' is ' + userBalance);
-								req.flash('actualrecbalance', 'Balance in ' + id2 +  ' is ' + recBalance);
-								req.flash('transfermsg', 'Transferred ' + amount + ' to ' + recipient);
-								res.redirect('/profile');	
+						var sufficientBalance = userBalance > amount? true:false;
+						if(sufficientBalance){
+						
+							userBalance = userBalance - amount;
+							recBalance = recBalance + amount;
+							var q3 = "UPDATE accounts SET balance =" + userBalance + "where user_id = " +userId + ";"; 
+							var q4 = "UPDATE accounts SET balance =" + recBalance + "where user_id = " +recId + ";" 
+							database.query(q3, { model: Account }).then(function (result3) {
+								database.query(q4, {model: Account}).then(function (result4) {
+									req.flash('userbalance', 'Balance for ' + id1 +  ' should be ' + (userAmount-amount));
+									req.flash('recbalance', 'Balance for ' + id2 +  ' should be ' + (recAmount+amount));
+									req.flash('actualuserbalance', 'Balance in ' + id1 +  ' is ' + userBalance);
+									req.flash('actualrecbalance', 'Balance in ' + id2 +  ' is ' + recBalance);
+									req.flash('transfermsg', 'Transferred ' + amount + ' to ' + recipient);
+									res.redirect('/profile');	
+								})
 							})
-						})
-					} else {
-						req.flash('transfermsg', 'Insufficient funds');
-						res.redirect('/profile');	
-					}
+						} else {
+							req.flash('transfermsg', 'Insufficient funds');
+							res.redirect('/profile');	
+						}
+					})
 				})
-			})
+			} else {
+				req.flash('transfermsg', 'Insufficient funds');
+				res.redirect('/profile');	
+			}
 		} else {
-			req.flash('transfermsg', 'Insufficient funds');
+			req.flash('transfermsg', 'Nonexistent user');
 			res.redirect('/profile');	
 		}
-	} else {
-		req.flash('transfermsg', 'Nonexistent user');
-		res.redirect('/profile');	
-	}
+	})
+
 
 });
 
@@ -226,12 +231,12 @@ function validAmount(amount) {
 	return amount > 0? true:false;
 }
 
-function existingUser(user) {
-	User.findOne({where: {email:user}}).then(function(user) {
-		if(!user) {
-			return false;
+function existingUser(user, callback) {
+	User.findOne({where: {email:user}}).then(function(user2) {
+		if(!user2) {
+			callback(false);
 		} else {
-			return true;
+			callback(true);
 		}
 	})
 };
