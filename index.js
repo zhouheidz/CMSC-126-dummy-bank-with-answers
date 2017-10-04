@@ -94,8 +94,6 @@ app.post('/transfer', requireSignedIn, function(req, res) {
 					console.log(results2);
 					id1 = parseInt(results.get('user_id'));
 					id2 = parseInt(results2.get('user_id'));
-					console.log('ID1 ' + id1);
-					console.log('ID2 ' + id2);
 					userAmount = parseInt(results.get('balance'));
 					recAmount = parseInt(results2.get('balance'));
 					var userId = (results.get('user_id'));
@@ -104,8 +102,7 @@ app.post('/transfer', requireSignedIn, function(req, res) {
 					var recBalance = results2.get('balance');
 
 					var sufficientBalance = userBalance > amount? true:false;
-					if(sufficientBalance){
-					
+					if(sufficientBalance){	
 						userBalance = userBalance - amount;
 						recBalance = recBalance + amount;
 						var q3 = "UPDATE accounts SET balance =" + userBalance + "where user_id = " +userId + ";"; 
