@@ -103,8 +103,8 @@ app.post('/transfer', requireSignedIn, function(req, res) {
 						var recId = results2.get('user_id');
 						var recBalance = results2.get('balance');
 
-						var sufficientBalance = userBalance > amount? true:false;
-						if(sufficientBalance){
+						var sufficientBalance = userBalance > amount ? true : false;
+						if(sufficientBalance) {
 						
 							userBalance = userBalance - amount;
 							recBalance = recBalance + amount;
@@ -112,8 +112,8 @@ app.post('/transfer', requireSignedIn, function(req, res) {
 							var q4 = "UPDATE accounts SET balance =" + recBalance + "where user_id = " +recId + ";" 
 							database.query(q3, { model: Account }).then(function (result3) {
 								database.query(q4, {model: Account}).then(function (result4) {
-									req.flash('userbalance', 'Balance for ' + id1 +  ' should be ' + (userAmount-amount));
-									req.flash('recbalance', 'Balance for ' + id2 +  ' should be ' + (recAmount+amount));
+									req.flash('userbalance', 'Balance for ' + id1 +  ' should be ' + (userAmount - amount));
+									req.flash('recbalance', 'Balance for ' + id2 +  ' should be ' + (recAmount + amount));
 									req.flash('actualuserbalance', 'Balance in ' + id1 +  ' is ' + userBalance);
 									req.flash('actualrecbalance', 'Balance in ' + id2 +  ' is ' + recBalance);
 									req.flash('transfermsg', 'Transferred ' + amount + ' to ' + recipient);
@@ -150,7 +150,7 @@ app.post('/deposit', requireSignedIn, function(req, res) {
 	const amount = parseInt(req.body.amount, 10);
 	const email = req.user;
 	
-	if(validAmount(amount)){
+	if(validAmount(amount)) {
 		getUserDetails(email, function(userBalance, userAccount){
 			database.transaction(function(t){
 				return userAccount.update({
@@ -158,13 +158,13 @@ app.post('/deposit', requireSignedIn, function(req, res) {
 				}, {
 					 transaction: t 
 				});
-			}).then(function(){
-				req.flash('actualbaldeposit', 'Balance should be '+(userBalance+amount));
+			}).then(function() {
+				req.flash('actualbaldeposit', 'Balance should be '+ (userBalance + amount));
 				req.flash('depositmsg', 'Deposited ' + amount + ' to ' + email);
 				res.redirect('/profile');
 			});
 		});
-	}else{
+	}else {
 		req.flash('depositmsg', 'Amount should be greater than zero');
 		res.redirect('/profile');
 	}
@@ -185,7 +185,7 @@ app.post('/withdraw', requireSignedIn, function(req, res) {
 
 	if(validAmount(amount)){		
 		getUserDetails (email, function (userBalance, userAccount){
-			var sufficientBalance = userBalance > amount? true:false;
+			var sufficientBalance = userBalance > amount? true : false;
 			if(sufficientBalance){
 				database.transaction(function(t) {
 					return userAccount.update({
@@ -194,7 +194,7 @@ app.post('/withdraw', requireSignedIn, function(req, res) {
 						transaction: t 
 					});
 				}).then(function() {
-					req.flash('actualbalwithdraw', 'Balance should be '+(userBalance-amount));				
+					req.flash('actualbalwithdraw', 'Balance should be '+ (userBalance - amount));				
 					req.flash('withdrawmsg', 'Withdrew ' + amount + ' to ' + email);
 					res.redirect('/profile');
 				});	
@@ -222,7 +222,7 @@ function getUserDetails(email, callback) {
 }
 
 function validAmount(amount) {
-	return amount > 0? true:false;
+	return amount > 0 ? true : false;
 }
 
 function existingUser(user, callback) {
