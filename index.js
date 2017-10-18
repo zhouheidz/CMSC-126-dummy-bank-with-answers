@@ -232,8 +232,9 @@ function existingUser(user, callback) {
 		}
 	})
 };
-//the requiredSignedIn function simply checkes the sessions of the user (e.g. the user is currently
-//signed-in.)
+
+//the requiredSignedIn function simply checkes the sessions of the
+//user (e.g. the user is currently signed-in.)
 function requireSignedIn(req, res, next) {
     if (!req.session.currentUser) {
         return res.redirect('/');
