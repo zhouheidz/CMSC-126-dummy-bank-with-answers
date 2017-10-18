@@ -58,7 +58,9 @@ app.get('/profile', requireSignedIn, function(req, res) {
 		Account.findOne({ where: { user_id: user.id } }).then(function(userAccount) {
 			balance = userAccount.balance;
 			res.render('profile.html', {
-				user: user, header:header, balance:balance
+				user: user, 
+				header:header, 
+				balance:balance
 			});
 		});
 	});
