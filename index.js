@@ -1,18 +1,20 @@
 const express = require('express');
+const app = express();
 const bodyparser = require('body-parser');
 const cookieparser = require('cookie-parser');
 const session = require('express-session');
 const flash = require('express-flash');
+
 const consolidate = require('consolidate');
 const passport = require('./config/passport');
 const database = require('./database');
 const User = require('./models').User;
 const Account = require('./models').Account;
+
 const routes = './routes/auth-routes'; 
 const twitter = './routes/twitter';
 const facebook = './routes/facebook';
 const google = './routes/google';
-const app = express();
 
 app.engine('html', consolidate.nunjucks);
 app.set('views', './views');
@@ -44,9 +46,9 @@ app.use(user);
 
 //this function redirects the user to the profile page
 app.get('/profile', requireSignedIn, function(req, res) {
+	var balance = '';
 	const email = req.user;
 	var header = '';
-	var balance = '';
 
 	//the function below simply finds who is the current user inorder to display the name in the profile
 	User.findOne({ where: { email: email } }).then(function(user) {
@@ -211,8 +213,8 @@ app.post('/withdraw', requireSignedIn, function(req, res) {
 
 //function call to return the userbalance and useraccount given the email.
 function getUserDetails(email, callback) {
-	var localUserBalance = '';
 	var balance = '';
+	var localUserBalance = '';
 	User.findOne({ where: { email: email } }).then(function(user) {
 		Account.findOne({ where: { user_id: user.id } }).then(function(userAccount) {
 			balance = userAccount.balance;					
