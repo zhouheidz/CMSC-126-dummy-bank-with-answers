@@ -44,13 +44,25 @@ var user = function retrieveSignedInUser(req, res, next) {
 app.use(user);
 
 
-//this function redirects the user to the profile page
+
+/*
+	this function redirects the user to the profile page. 
+	The following limitations / notes includes:
+		- There must be an internet connection and server must be running
+		- User must have signed up or User is found in the database.
+		- GET method only retrieves data. Hence, no data is being modified. If there is a need for data modification
+			on this routine, a POST method should be done.
+*/
 app.get('/profile', requireSignedIn, function(req, res) {
 	var balance = '';
 	const email = req.user;
 	var header = '';
 
-	//the function below simply finds who is the current user inorder to display the name in the profile
+	/*
+		This subfunction below simply finds who is the current user in order to display the name in the profile
+		Limitations / reminders include:
+			- there will always be an email here.
+	*/
 	User.findOne({ where: { email: email } }).then(function(user) {
 		if(user.name) {
 			header = user.name;
@@ -70,12 +82,22 @@ app.get('/profile', requireSignedIn, function(req, res) {
 
 /*
 this function is for withdrawing money from the user's account
- Refactored:
- 	- Added additional checking
- 		- validAmount(amount) which checks if the amount to be withdrawed is a value greater than 0.
- 		- check if account has sufficient balance
- 	- Minimized nested queries
- 		- Improved readability of code by using direct queries instead of Sequelized queries
+	Refactored:
+	 	- Added additional checking
+	 		- validAmount(amount) which checks if the amount to be withdrawed is a value greater than 0.
+	 		- check if account has sufficient balance
+	 	- Minimized nested queries
+	 		- Improved readability of code by using direct queries instead of Sequelized queries
+
+	Following notes / limitations include:
+		- This function displays a numerical value (balance) of the user if the transfer
+			was successful.
+		- Function is expected to work if the receiver of the transfer exists (in the database)
+			AND the balance of the sender is sufficient enough to transfer the said amount.
+		- If the transfer was unsuccessful, it will display a string with a corresponding
+			error: 
+				- Insufficient funds if balance is insufficien
+				- Non-existent user if the receiver does not exist in the database.
 */
 app.post('/transfer', requireSignedIn, function(req, res) {
 	const recipient = req.body.recipient;
@@ -143,10 +165,17 @@ app.post('/transfer', requireSignedIn, function(req, res) {
 
 /*
 this function is for depositing money to the account of the user.
- Refactored:
- 	- Added additional checking
- 		- validAmount(amount) which checks if the amount to be withdrawed is a value greater than 0.
- 	- Created a routine that retrieves the user balance, which is used in withdraw and deposit.
+	Refactored:
+	 	- Added additional checking
+	 		- validAmount(amount) which checks if the amount to be withdrawed is a value greater than 0.
+	 	- Created a routine that retrieves the user balance, which is used in withdraw and deposit.
+
+	 Limitations / Notes:
+	 	- Function displays the user balance (numerical value) if the deposit function worked successfully
+	 	- The function will work properly if:
+	 		- The amount is valid (e.g. Positive amount)
+	 		- The user exists (is in the database)
+	 	- A string is expected to be displayed if the function fails.
 */
 app.post('/deposit', requireSignedIn, function(req, res) {
 	const amount = parseInt(req.body.amount, 10);
@@ -175,11 +204,21 @@ app.post('/deposit', requireSignedIn, function(req, res) {
 
 /*
 this function is for withdrawing money from the user's account
- Refactored:
- 	- Added additional checking
- 		- validAmount(amount) which checks if the amount to be withdrawed is a value greater than 0.
- 		- check if account has sufficient balance
- 	- Created a routine that retrieves the user balance, which is used in withdraw and deposit.
+	Refactored:
+	 	- Added additional checking
+	 		- validAmount(amount) which checks if the amount to be withdrawed is a value greater than 0.
+	 		- check if account has sufficient balance
+	 	- Created a routine that retrieves the user balance, which is used in withdraw and deposit.
+
+	Limitations / Notes
+	 	- The routine shows the user balance (numerical value) if the withdraw was successful.
+	 	- The function will work properly if:
+	 		- The amount is valid (e.g. Positive amount)
+	 		- The user balance is sufficient enough to withdraw the said amount.
+	 		- The user exists in the database.
+	 	- A string is expected to be displayed if the function fails:
+	 		- 'Insufficient Amount' is displayed if the balance is insufficient for withdrawal.
+	 		- 'Amount should be greater than zero' if the said amount is a negative number.
 */
 app.post('/withdraw', requireSignedIn, function(req, res) {
 	const amount = parseInt(req.body.amount, 10);
@@ -211,7 +250,14 @@ app.post('/withdraw', requireSignedIn, function(req, res) {
 	}	
 });
 
-//function call to return the userbalance and useraccount given the email.
+/*
+	This is a function call to return the userbalance and useraccount given the email.
+
+	Limitations / Notes:
+		- The callback function returns the balance and user details if the user is found.
+		- Expected to return and empty string for the balance if user is not found.
+		- email parameter should not be null or non-existent for this routine to work as it is.
+*/
 function getUserDetails(email, callback) {
 	var balance = '';
 	var localUserBalance = '';
@@ -222,11 +268,24 @@ function getUserDetails(email, callback) {
 		});
 	});
 }
+/*
+	A function call to check if the amount being passed is valid.
 
+	Limitation / Notes:
+		- Routine is expected to work on numerical values only.
+		- Returns a boolean value.
+*/
 function validAmount(amount) {
 	return amount > 0 ? true : false;
 }
 
+/*
+	A function call to check if a user exists in the database.
+
+	Limitation / Notes:
+		- Routine is expected to work if there is currently a user logged in.
+		- Returns a boolean value.
+*/
 function existingUser(user, callback) {
 	User.findOne({where: {email:user}}).then(function(user2) {
 		if(!user2) {
@@ -237,8 +296,14 @@ function existingUser(user, callback) {
 	})
 };
 
-//the requiredSignedIn function simply checkes the sessions of the
-//user (e.g. the user is currently signed-in.)
+/*
+	The requiredSignedIn function simply checkes the sessions of the user.
+
+	Limitation / Reminders:
+		- If user is not signed in, it will be redirected.
+		- If user is indeed signed, it will proceed.
+		- If modifications are done and server is restarted, session will be restarted.
+*/
 function requireSignedIn(req, res, next) {
     if (!req.session.currentUser) {
         return res.redirect('/');
