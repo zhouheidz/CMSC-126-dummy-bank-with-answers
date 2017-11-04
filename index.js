@@ -110,11 +110,9 @@ app.post('/transfer', requireSignedIn, function(req, res) {
 
 	const q1 = "SELECT user_id, balance FROM accounts WHERE user_id in (SELECT id FROM users WHERE email ='" +email+ "');";
 	const q2 = "SELECT user_id, balance FROM accounts WHERE user_id in (SELECT id FROM users WHERE email ='" +recipient+ "');";	
-	console.log("existingUser = "+existingUser(recipient))
 	
 	existingUser(recipient, function(result) {
 		if(result == true) {
-			console.log("USER EXISTS NOW CHECKING IF AMOUNT IS VALID")
 			if(validAmount(amount) == true){	
 				database.query(q1, { model: User }).spread(function (results) {
 					database.query(q2, {model:User}).spread(function (results2) {
@@ -297,7 +295,7 @@ function existingUser(user, callback) {
 };
 
 /*
-	The requiredSignedIn function simply checkes the sessions of the user.
+	The requiredSignedIn function simply checks the sessions of the user.
 
 	Limitation / Reminders:
 		- If user is not signed in, it will be redirected.
