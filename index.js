@@ -52,6 +52,10 @@ app.use(user);
 		- User must have signed up or User is found in the database.
 		- GET method only retrieves data. Hence, no data is being modified. If there is a need for data modification
 			on this routine, a POST method should be done.
+*	@param {string} '/profile' - the profile route
+*	@param {function} requireSignedIn - checks whether the user has already signed in
+*	@param {req} req - The HTTP request object
+*	@param {res} res - The HTTP response object
 */
 app.get('/profile', requireSignedIn, function(req, res) {
 	var balance = '';
@@ -62,6 +66,7 @@ app.get('/profile', requireSignedIn, function(req, res) {
 		This subfunction below simply finds who is the current user in order to display the name in the profile
 		Limitations / reminders include:
 			- there will always be an email here.
+	*	@param {User} user - a User object returned by a database query
 	*/
 	User.findOne({ where: { email: email } }).then(function(user) {
 		if(user.name) {
@@ -69,6 +74,9 @@ app.get('/profile', requireSignedIn, function(req, res) {
 		} else {
 			header = req.user;
 		}
+		/**
+		*	@param {Account} userAccount - an Account object returned by a database query
+		*/
 		Account.findOne({ where: { user_id: user.id } }).then(function(userAccount) {
 			balance = userAccount.balance;
 			res.render('profile.html', {
@@ -98,6 +106,10 @@ this function is for withdrawing money from the user's account
 			error: 
 				- Insufficient funds if balance is insufficien
 				- Non-existent user if the receiver does not exist in the database.
+*	@param {string} '/transfer' - the route to transfer a user after a transaction
+*	@param {function} requireSignedIn - checks whether the user has already signed in
+*	@param {req} req - The HTTP request object
+*	@param {res} res - The HTTP response object
 */
 app.post('/transfer', requireSignedIn, function(req, res) {
 	const recipient = req.body.recipient;
@@ -111,9 +123,18 @@ app.post('/transfer', requireSignedIn, function(req, res) {
 	const q1 = "SELECT user_id, balance FROM accounts WHERE user_id in (SELECT id FROM users WHERE email ='" +email+ "');";
 	const q2 = "SELECT user_id, balance FROM accounts WHERE user_id in (SELECT id FROM users WHERE email ='" +recipient+ "');";	
 	
+
+	/**
+	*	@param {User} recipient - a User object of the receiver account
+	*	@param {boolean} result - returns true if the User is existing, otherwise, false
+	*/
 	existingUser(recipient, function(result) {
 		if(result == true) {
 			if(validAmount(amount) == true){	
+				/**
+				*	@param {User} results - returns a User object after a database query
+				*	@param {User} results2 - returns a User object after a database query
+				*/
 				database.query(q1, { model: User }).spread(function (results) {
 					database.query(q2, {model:User}).spread(function (results2) {
 						id1 = parseInt(results.get('user_id'));
@@ -174,12 +195,21 @@ this function is for depositing money to the account of the user.
 	 		- The amount is valid (e.g. Positive amount)
 	 		- The user exists (is in the database)
 	 	- A string is expected to be displayed if the function fails.
+*	@param {string} '/deposit' - the route to the deposit page
+*	@param {function} requireSignedIn - checks whether the user has already signed in
+*	@param {req} req - The HTTP request object
+*	@param {res} res - The HTTP response object
 */
 app.post('/deposit', requireSignedIn, function(req, res) {
 	const amount = parseInt(req.body.amount, 10);
 	const email = req.user;
 	
 	if(validAmount(amount)) {
+		/**
+		*	@param {string} email - contains the email address of the current user
+		*	@param {int} userBalance - the balance remaining in a User's bank account
+		*	@param {Account} userAccount - an Account object returned by a database query
+		*/
 		getUserDetails(email, function(userBalance, userAccount){
 			database.transaction(function(t){
 				return userAccount.update({
@@ -217,12 +247,21 @@ this function is for withdrawing money from the user's account
 	 	- A string is expected to be displayed if the function fails:
 	 		- 'Insufficient Amount' is displayed if the balance is insufficient for withdrawal.
 	 		- 'Amount should be greater than zero' if the said amount is a negative number.
+*	@param {string} '/withdraw' - the route to the withdraw page
+*	@param {function} requireSignedIn - checks whether the user has already signed in
+*	@param {req} req - The HTTP request object
+*	@param {res} res - The HTTP response object
 */
 app.post('/withdraw', requireSignedIn, function(req, res) {
 	const amount = parseInt(req.body.amount, 10);
 	const email = req.user;
 
 	if(validAmount(amount)){		
+		/**
+		*	@param {string} email - contains the email address of the current user
+		*	@param {int} userBalance - the balance remaining in a User's bank account
+		*	@param {Account} userAccount - an Account object returned by a database query
+		*/
 		getUserDetails (email, function (userBalance, userAccount){
 			var sufficientBalance = userBalance > amount? true : false;
 			if(sufficientBalance){
@@ -255,10 +294,16 @@ app.post('/withdraw', requireSignedIn, function(req, res) {
 		- The callback function returns the balance and user details if the user is found.
 		- Expected to return and empty string for the balance if user is not found.
 		- email parameter should not be null or non-existent for this routine to work as it is.
+*	@param {string} email - contains the email address of the current user
+*	@param {function} callback - returns true if User exists, false otherwise
 */
 function getUserDetails(email, callback) {
 	var balance = '';
 	var localUserBalance = '';
+	/**
+	*	@param {User} user - a User object returned after a database query
+	*	@param {Account} userAccount - an Account object returned after a database query
+	*/
 	User.findOne({ where: { email: email } }).then(function(user) {
 		Account.findOne({ where: { user_id: user.id } }).then(function(userAccount) {
 			balance = userAccount.balance;					
@@ -272,6 +317,7 @@ function getUserDetails(email, callback) {
 	Limitation / Notes:
 		- Routine is expected to work on numerical values only.
 		- Returns a boolean value.
+*	@param {int} amount - the amount to be withdrawn, deposited, or transferred
 */
 function validAmount(amount) {
 	return amount > 0 ? true : false;
@@ -283,6 +329,8 @@ function validAmount(amount) {
 	Limitation / Notes:
 		- Routine is expected to work if there is currently a user logged in.
 		- Returns a boolean value.
+*	@param {User} user - a User object returned after a database query
+*	@param {function} callback - returns true if User exists, false otherwise
 */
 function existingUser(user, callback) {
 	User.findOne({where: {email:user}}).then(function(user2) {
@@ -301,6 +349,9 @@ function existingUser(user, callback) {
 		- If user is not signed in, it will be redirected.
 		- If user is indeed signed, it will proceed.
 		- If modifications are done and server is restarted, session will be restarted.
+*	@param {req} req - The HTTP request object
+*	@param {res} res - The HTTP response object
+*	@param {next} next - The HTTP next middleware function
 */
 function requireSignedIn(req, res, next) {
     if (!req.session.currentUser) {
