@@ -1,7 +1,7 @@
 const Sequelize = require('sequelize');
 
 const connectionUrl = 'postgres://bankuser:bankpassword@localhost:5432/bankdb';
-var database = new Sequelize(connectionUrl);
+var database;
 
 if (process.env.DATABASE_URL) {
   // the application is executed on Heroku ... use the postgres database
