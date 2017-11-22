@@ -24,3 +24,9 @@ notifications:
       - kamarinduque@up.edu.ph
     on_success: always 
     on_failure: always 
+  slack:
+    rooms:
+      - theintegrationproject:0rbj2zPSRq213tltTQw2tmGY#general
+      - theintegrationproject:0rbj2zPSRq213tltTQw2tmGY#random
+    on_success: always 
+    on_failure: always 
