@@ -16,6 +16,34 @@ const twitter = './routes/twitter';
 const facebook = './routes/facebook';
 const google = './routes/google';
 
+
+
+var WebSocketServer = require("ws").Server
+var http = require("http")
+var port = process.env.PORT || 5000
+
+var server = http.createServer(app)
+server.listen(port)
+
+console.log("http server listening on %d", port)
+
+var wss = new WebSocketServer({server: server})
+console.log("websocket server created")
+
+wss.on("connection", function(ws) {
+  var wssid = setInterval(function() {
+    ws.send(JSON.stringify(new Date()), function() {  })
+  }, 1000)
+
+  console.log("websocket connection open")
+
+  ws.on("close", function() {
+    console.log("websocket connection close")
+    clearInterval(wssid)
+  })
+
+
+
 app.engine('html', consolidate.nunjucks);
 app.set('views', './views');
 
@@ -360,6 +388,6 @@ function requireSignedIn(req, res, next) {
     next();
 }
 
-app.listen(3000, function() {
-	console.log('Server is now running at port 3000');
-});
+// app.listen(3000, function() {
+// 	console.log('Server is now running at port 3000');
+// });
