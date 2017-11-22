@@ -30,3 +30,10 @@ notifications:
       - theintegrationproject:0rbj2zPSRq213tltTQw2tmGY#random
     on_success: always 
     on_failure: always 
+    
+    deploy:
+      provider: pages
+      skip_cleanup: true
+      github_token: $a3efb1a615e95539bad1dc5ce0e72304fa25b6df # Set in travis-ci.org dashboard
+    on:
+      branch: master
