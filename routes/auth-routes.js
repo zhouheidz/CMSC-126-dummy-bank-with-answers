@@ -37,13 +37,13 @@ router.post('/signup', function(req, res) {
                 Account.create({
                     user_id: newuser.id
                 }).catch(Sequelize.ValidationError, function (err) {
-
+                    console.log("something went wrong");
                 });
             }).then(function() {
                 req.flash('signUpMessage', 'Signed up successfully!');
                 return res.redirect('/');
             }).catch(Sequelize.ValidationError, function (err) {
-
+                console.log("something went wrong");
             }); 
         });
     });   
