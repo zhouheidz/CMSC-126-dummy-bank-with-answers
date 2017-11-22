@@ -1,0 +1,17 @@
+language: node_js
+sudo: false
+node_js:
+  - "7.10.0"
+
+install:
+  - npm install
+  - npm install mocha
+  - npm install chai
+  - npm install sinon
+  - npm install axios
+  - npm install cheerio
+  
+before_script: chmod 0777 ./node_modules/.bin/mocha 
+
+script:
+  - npm test
