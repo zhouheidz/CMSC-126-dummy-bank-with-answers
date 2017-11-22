@@ -1,7 +1,7 @@
 zhouheidz/CMSC-126-dummy-bank-with-answers:
   # Distelli Manifest example
   # this example assumes the build and deploy servers are:
-  # Ubuntu 14.04 
+  # Windows 10
 
   PreRelease:
     - echo "---Beginning PreRelease---"
