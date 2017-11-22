@@ -34,6 +34,7 @@ zhouheidz/CMSC-126-dummy-bank-with-answers:
     - npm install pg 
     - npm install proxyquire
     - npm install sequelize-cli
+    - npm install sequelize
     - npm install sinon
     - npm install stubs
     - echo "--Testing--"
