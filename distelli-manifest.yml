@@ -33,11 +33,11 @@ zhouheidz/CMSC-126-dummy-bank-with-answers:
     - npm install passport-twitter
     - npm install pg 
     - npm install proxyquire
-    - npm install sequelize
     - npm install sequelize-cli
     - npm install sinon
     - npm install stubs
     - echo "--Testing--"
+    - node index
     - npm test
 
   PkgInclude:
