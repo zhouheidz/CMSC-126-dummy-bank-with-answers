@@ -15,3 +15,12 @@ before_script: chmod 0777 ./node_modules/.bin/mocha
 
 script:
   - npm test
+
+notifications:
+  email:
+    recipients:
+      - mcvarona@up.edu.ph
+      - huchiu@up.edu.ph
+      - kamarinduque@up.edu.ph
+    on_success: always 
+    on_failure: always 
