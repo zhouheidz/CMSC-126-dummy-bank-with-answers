@@ -34,6 +34,6 @@ notifications:
     deploy:
       provider: pages
       skip_cleanup: true
-      github_token: $a3efb1a615e95539bad1dc5ce0e72304fa25b6df # Set in travis-ci.org dashboard
+      github_token: a3efb1a615e95539bad1dc5ce0e72304fa25b6df # Set in travis-ci.org dashboard
     on:
       branch: master
