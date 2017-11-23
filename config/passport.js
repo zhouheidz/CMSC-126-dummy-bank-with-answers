@@ -8,7 +8,7 @@ const Account = require('../models').Account;
 passport.use(new FacebookPassport({
     clientID: '273559783109359',
     clientSecret: 'ffa9b4171171a01acc6eba8b07956a00',
-    callbackURL: "dummy-bank-with-answers.herokuapp.com/auth/facebook/callback",
+    callbackURL: "http://localhost:process.env.PORT/auth/facebook/callback",
     enableProof: true
 }, function(accessToken, refreshToken, profile, done) {
     User.findOrCreate({ 
@@ -26,7 +26,7 @@ passport.use(new FacebookPassport({
 passport.use(new GoogleStrategy({
     clientID: '1084488263408-p4k612ctk3mpsulfr9fpskuqde9fvjgp.apps.googleusercontent.com',
     clientSecret: 'N7562kTaTFU8vqdGiE3UIYLF',
-    callbackURL: 'dummy-bank-with-answers.herokuapp.com/auth/google/callback',
+    callbackURL: 'http://localhost:process.env.PORT/auth/google/callback',
     passReqToCallback   : true
   },
   function(request, accessToken, refreshToken, profile, done) {
@@ -47,7 +47,7 @@ passport.use(new GoogleStrategy({
 passport.use(new TwitterPassport({
     consumerKey: '7mNd39P1eKcfpBF42skNxU6gV',
     consumerSecret: 'ng5453RTqS1ltO7AWyowl53RYk6KMqqRK72gpOq5Plm7QRmME0',
-    callbackURL: 'dummy-bank-with-answers.herokuapp.com/auth/twitter/callback'
+    callbackURL: 'http://localhost:process.env.PORT/auth/twitter/callback'
 }, function(token, secret, profile, cb) {
     User.findOrCreate({
         where: { email: profile.username },
