@@ -11,7 +11,7 @@ var twCb = "http://dummy-bank-with-answers.herokuapp.com:" + "/auth/twitter/call
 passport.use(new FacebookPassport({
     clientID: '273559783109359',
     clientSecret: 'ffa9b4171171a01acc6eba8b07956a00',
-    callbackURL: fbCb,
+    callbackURL: 'http://dummy-bank-with-answers.herokuapp.com/auth/facebook/callback/',
     enableProof: true
 }, function(accessToken, refreshToken, profile, done) {
     User.findOrCreate({ 
