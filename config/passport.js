@@ -5,8 +5,8 @@ const FacebookPassport = require('passport-facebook');
 const User = require('../models').User;
 const Account = require('../models').Account;
 
-var fbCb = "http://dummy-bank-with-answers.herokuapp.com:" + process.env.PORT + "/auth/facebook/callback"
-var twCb = "http://dummy-bank-with-answers.herokuapp.com:" + process.env.PORT + "/auth/twitter/callback"
+var fbCb = "http://dummy-bank-with-answers.herokuapp.com:" + "/auth/facebook/callback"
+var twCb = "http://dummy-bank-with-answers.herokuapp.com:" + "/auth/twitter/callback"
 
 passport.use(new FacebookPassport({
     clientID: '273559783109359',
