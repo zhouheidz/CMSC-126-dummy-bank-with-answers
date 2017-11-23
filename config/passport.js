@@ -5,7 +5,7 @@ const FacebookPassport = require('passport-facebook');
 const User = require('../models').User;
 const Account = require('../models').Account;
 
-var fbCb = "http://dummy-bank-with-answers.herokuapp.com:" + "/auth/facebook/callback/"
+var fbCb = "https://dummy-bank-with-answers.herokuapp.com:" + "/auth/facebook/callback/"
 var twCb = "http://dummy-bank-with-answers.herokuapp.com:" + "/auth/twitter/callback"
 
 passport.use(new FacebookPassport({
