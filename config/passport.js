@@ -5,10 +5,13 @@ const FacebookPassport = require('passport-facebook');
 const User = require('../models').User;
 const Account = require('../models').Account;
 
+var fbCb = "http://localhost:" + process.env.PORT + "/auth/facebook/callback"
+var twCb = "http://localhost:" + process.env.PORT + "/auth/twitter/callback"
+
 passport.use(new FacebookPassport({
     clientID: '273559783109359',
     clientSecret: 'ffa9b4171171a01acc6eba8b07956a00',
-    callbackURL: "http://localhost:process.env.PORT/auth/facebook/callback",
+    callbackURL: fbCb,
     enableProof: true
 }, function(accessToken, refreshToken, profile, done) {
     User.findOrCreate({ 
@@ -47,7 +50,7 @@ passport.use(new GoogleStrategy({
 passport.use(new TwitterPassport({
     consumerKey: '7mNd39P1eKcfpBF42skNxU6gV',
     consumerSecret: 'ng5453RTqS1ltO7AWyowl53RYk6KMqqRK72gpOq5Plm7QRmME0',
-    callbackURL: 'http://localhost:process.env.PORT/auth/twitter/callback'
+    callbackURL: twCb,
 }, function(token, secret, profile, cb) {
     User.findOrCreate({
         where: { email: profile.username },
