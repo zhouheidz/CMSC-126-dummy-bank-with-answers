@@ -5,6 +5,7 @@ const Account = require('../models').Account;
 const passport = require('../config/passport');
 const router = new express.Router();
 const database = require('../database');
+const Sequelize = require('sequelize');
 
 router.post('/signup', function(req, res) {
 	const email = req.body.email;
