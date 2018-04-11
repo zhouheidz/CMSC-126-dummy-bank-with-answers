@@ -1,5 +1,5 @@
 const express = require('express');
-const app = express();
+
 const bodyparser = require('body-parser');
 const cookieparser = require('cookie-parser');
 const session = require('express-session');
@@ -16,6 +16,7 @@ const twitter = './routes/twitter';
 const facebook = './routes/facebook';
 const google = './routes/google';
 
+const app = express();
 app.engine('html', consolidate.nunjucks);
 app.set('views', './views');
 
