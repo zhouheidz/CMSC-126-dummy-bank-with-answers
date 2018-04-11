@@ -13,26 +13,28 @@ chai.config.includeStack = false;
 chai.config.truncateThreshold = 0;
 
 describe('Dummy Bank Function Tests', function() {
-  it('Depositing an amount greater than zero', function(){
-    // return assert.equal(validAmount(1)).to.deep.equal(true));
+  it('"validity check for deposting values greater than zero", should return true ', function(){
     return chai.expect(validAmount(1)).to.deep.equal(true);
   });
 
-  it('Depositing an amount less than zero', function(){
+  it('"validity check for depositing values less than zero", should return false ', function(){
     return chai.expect(validAmount(-1)).to.deep.equal(false);
   });
 
-  it('Transferring amount greater than zero', function(){
+   it('"validity check for transferring values greater than zero", should return true ', function(){
     return chai.expect(validAmount(1)).to.deep.equal(true);
   });
 
-  it('Transferring an amount less than zero', function(){
+  it('validity check for transferring values less than zero", should return false ', function(){
     return chai.expect(validAmount(-1)).to.deep.equal(false);
   });
-  it('Withdrawing an amount greater than zero', function(){
+
+   it('validity check for withdrawing values greater than zero", should return true ', function(){
     return chai.expect(validAmount(1)).to.deep.equal(true);
-  });  
-  it('Withdrawing an amount less than zero', function(){
+  });
+
+  it('validity check for withdrawing values less than zero", should return false ', function(){
     return chai.expect(validAmount(-1)).to.deep.equal(false);
-  });   
+  });
+   
 });
