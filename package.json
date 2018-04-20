@@ -4,7 +4,8 @@
   "description": "dummy bank application using expressjs",
   "main": "index.js",
   "scripts": {
-    "test": "./node_modules/.bin/mocha tests/**/*.js"
+    "test-init": "./node_modules/.bin/jasmine init",
+    "test": "./node_modules/.bin/jasmine tests/**/*.js"
   },
   "author": "",
   "license": "ISC",
