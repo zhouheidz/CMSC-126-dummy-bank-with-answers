@@ -10,6 +10,7 @@ install:
   - npm install sinon
   - npm install axios
   - npm install cheerio
+  - npm install jasmine
   
 before_script: chmod 0777 ./node_modules/.bin/mocha 
 
